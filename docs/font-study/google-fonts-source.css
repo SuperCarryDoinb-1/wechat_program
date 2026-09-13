@@ -1,0 +1,36 @@
+@font-face {
+  font-family: 'Archivo Black';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=HTxqL289NzCGg4MzN6KJ7eW6OYuX-Fe6iw&skey=f0fab067ca5e2347&v=v23) format('truetype');
+}
+@font-face {
+  font-family: 'Bungee';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=N0bU2SZBIuF2PU_ECmZzYJeD&skey=2e93db42ee6e0e28&v=v17) format('truetype');
+}
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=X7nP4b87HvSqjb_WIi2yDCRwoQ_k7367_B-i2yQag0-mac3OLyXMFvuM3ZER&skey=365f4a64c66add9d&v=v17) format('truetype');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=QGYyz_MVcBeNP4NjuGObqx1XmO1I4ZmyC4GmFWlg9w&skey=bafc0b239d492b2c&v=v15) format('truetype');
+}
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/l/font?kit=Yq6F-LOTXCb04q32xlpat-6uR42XTqtG65j2043fh7fDCw&skey=85bdc4c30fbe73fc&v=v12) format('truetype');
+}

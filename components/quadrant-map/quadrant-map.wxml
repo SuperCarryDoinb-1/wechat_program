@@ -1,0 +1,11 @@
+<view class="map-frame">
+  <text class="axis-label axis-top">{{copy.embrace}}</text><text class="axis-label axis-bottom">{{copy.guard}}</text>
+  <text class="axis-label axis-left">{{copy.tool}}</text><text class="axis-label axis-right">{{copy.partner}}</text>
+  <view class="plot"><view class="grid-line grid-horizontal"></view><view class="grid-line grid-vertical"></view>
+    <view wx:for="{{connection}}" wx:key="id" class="connection-dot" style="left: {{item.left}}%; top: {{item.top}}%;"></view>
+    <view wx:if="{{friendValid}}" class="friend-point" style="left: {{friendLeft}}%; top: {{friendTop}}%; border-color: {{friendAccent}};" aria-label="{{pairCopy.friend}}"></view>
+    <view wx:if="{{valid}}" class="point" style="left: {{left}}%; top: {{top}}%; background: {{accent}};" aria-label="{{copy.you}}"></view>
+  </view>
+</view>
+<view class="legend"><view wx:if="{{valid}}" class="legend-dot" style="background: {{accent}};"></view><text>{{valid ? copy.you : copy.mapUnavailable}}</text></view>
+<view wx:if="{{friendValid}}" class="legend"><view class="friend-key" style="border-color: {{friendAccent}};"></view><text>{{pairCopy.friend}}</text><text wx:if="{{samePoint}}">{{pairCopy.samePoint}}</text></view>

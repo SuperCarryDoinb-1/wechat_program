@@ -1,0 +1,63 @@
+module.exports = {
+  brand: 'AITI',
+  eyebrow: 'AI TYPE INDICATOR',
+  title: 'AI 时代，\n你是哪一种人？',
+  subtitle: '你的 AI 使用风格，藏在每一个日常选择里。',
+  stats: [{ value: '12', unit: '道', label: '日常情境' }, { value: '8', unit: '种', label: '风格身份' }, { value: '≈90', unit: '秒', label: '发现另一面' }],
+  disclaimer: '仅供娱乐，结果不构成任何评价',
+  home: {
+    title: 'AI时代，你是哪一种人？',
+    summary: '12 道题 · 约 90 秒',
+    badge: '与 AI 共生',
+    cardEyebrow: '发现你的 AI 使用风格',
+    previewTitle: '你会是哪一型？',
+    previewHint: '滑动看看  →',
+    cardTitle: '你的另一面，等待揭晓',
+    cardText: '把 AI 当工具、当伙伴，还是让它替你做决定？',
+    action: '开始测试',
+    assistants: ['ChatGPT', 'Claude', 'DeepSeek', 'Kimi'],
+    stage: '开发预览 · M7 联调验收',
+    privacyLink: '隐私保护指引',
+    dataNotice: '作答用于测评与解读，分享会公开类型和坐标。',
+    privacyUnavailable: '暂时无法打开隐私指引，请稍后重试',
+    hint: '12 个日常选择，跟着第一反应选就好。'
+  },
+  quiz: {
+    badge: 'AI 使用风格测试', countPrefix: '情境', answered: '已作答',
+    hint: '没有标准答案，选最像你的那个。', previous: '上一题',
+    next: '下一题', finish: '查看结果',
+    finishing: '正在整理你的选择…', selected: '已选',
+    retry: '重试查看结果',
+    saveFailed: '结果暂时没能保存，你的选择还在。请重试。',
+    navigationFailed: '结果已经保存，页面暂时没打开。请重试。',
+    calculationFailed: '暂时无法整理结果，请返回上一题后重新选择。'
+  },
+  result: {
+    title: '你的 AI 使用风格', badge: '你的风格身份', action: '返回首页',
+    archive: '你的风格，有了名字。',
+    common: '普通', hidden: '隐藏款', identity: '你的 AI 时代身份',
+    skip: '跳过揭晓', reveal: '隐藏身份，已解锁',
+    roast: '一句话点评', tips: '使用建议',
+    aiLoading: '正在生成解读…',
+    contentLabels: { model: 'AI 生成', mock: '示例解读', fallback: '预设解读', offline: '离线解读' },
+    offlineNote: '网络或服务暂不可用，先看看为你准备的解读。',
+    mapTitle: '相处坐标', mapHint: '这里记录你此刻与 AI 相处的方式。',
+    tool: '工具', partner: '伙伴', embrace: '拥抱', guard: '防备',
+    you: '你的位置', humanLead: '我说了算', aiLead: 'AI 说了算', mapUnavailable: '坐标暂不可用',
+    details: '更多解读', expand: '展开', collapse: '收起',
+    pros: '你的优势', cons: '容易踩的坑', scene: '你的名场面',
+    best: '最配', worst: '最不配', chain: '互相不服气',
+    looksDownOn: '你瞧不上', lookedDownBy: '瞧不上你的',
+    save: '保存海报', share: '分享给好友', restart: '重新测试',
+    emptyTitle: '还没找到你的风格身份',
+    emptyText: '先完成 12 个选择，再来看看属于你的解读。'
+  },
+  diagnostics: {
+    title: '开发连通性检查', action: '检查 ping 与数据库', loading: '检查中…',
+    idle: '尚未检查', mock: '本地模拟：ping ok，模拟 results 写入和读回成功。未连接真实云端。',
+    cloud: '真实云端：ping ok，results 测试数据写入和读回成功。',
+    failed: '检查失败，请按 README 核对环境、函数部署及诊断开关。',
+    modes: { mock: '本地模拟模式', cloud: '云开发模式', unavailable: '云开发尚未就绪' }
+  },
+  errors: { navigation: '页面打开失败，请重试' }
+};

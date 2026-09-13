@@ -1,0 +1,15 @@
+<view wx:if="{{type}}" class="type-card {{type.rarity === 'hidden' ? 'hidden-card' : ''}}">
+  <view wx:if="{{type.rarity === 'hidden'}}" class="card-top"><text class="rarity rarity-hidden">{{copy.hidden}}</text></view>
+  <view class="art-stage">
+  <image wx:if="{{image}}" class="portrait" src="{{image}}" mode="aspectFit" binderror="imageFailed" data-code="{{code}}" />
+  <view wx:else class="portrait avatar avatar-{{code}}" style="color: {{type.color}};" aria-hidden="true">
+    <view class="halo halo-outer"></view><view class="halo halo-inner"></view>
+    <view class="avatar-head"><view class="antenna"></view><view class="eye eye-left"></view><view class="eye eye-right"></view><view class="mouth"></view></view>
+    <view class="avatar-body"></view><view class="spark spark-one"></view><view class="spark spark-two"></view>
+  </view>
+  </view>
+  <text class="type-code">{{code}}</text>
+  <view class="type-name">{{type.name}}</view>
+  <view class="slogan">{{type.slogan}}</view>
+  <view class="persona">{{type.persona}}</view>
+</view>

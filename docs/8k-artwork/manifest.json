@@ -1,0 +1,152 @@
+[
+  {
+    "file": "assets/share/invite.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 425453
+  },
+  {
+    "file": "assets/share/PEA.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 363564
+  },
+  {
+    "file": "assets/share/PEM.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 387012
+  },
+  {
+    "file": "assets/share/PGA.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 365907
+  },
+  {
+    "file": "assets/share/PGM.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 391139
+  },
+  {
+    "file": "assets/share/TEA.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 366729
+  },
+  {
+    "file": "assets/share/TEM.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 369691
+  },
+  {
+    "file": "assets/share/TGA.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 361151
+  },
+  {
+    "file": "assets/share/TGM.png",
+    "width": 7680,
+    "height": 6144,
+    "bytes": 363775
+  },
+  {
+    "file": "docs/pair-poster-check/level-0.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 557592
+  },
+  {
+    "file": "docs/pair-poster-check/level-1.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 564116
+  },
+  {
+    "file": "docs/pair-poster-check/level-2.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 620779
+  },
+  {
+    "file": "docs/pair-poster-check/level-3.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 566771
+  },
+  {
+    "file": "docs/pair-poster-check/special-0.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 570522
+  },
+  {
+    "file": "docs/pair-poster-check/special-1.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 551448
+  },
+  {
+    "file": "docs/pair-poster-check/special-2.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 554053
+  },
+  {
+    "file": "docs/pair-poster-check/special-3.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 566963
+  },
+  {
+    "file": "docs/poster-check/PEA.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 554910
+  },
+  {
+    "file": "docs/poster-check/PEM.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 566715
+  },
+  {
+    "file": "docs/poster-check/PGA.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 564251
+  },
+  {
+    "file": "docs/poster-check/PGM.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 556312
+  },
+  {
+    "file": "docs/poster-check/TEA.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 562956
+  },
+  {
+    "file": "docs/poster-check/TEM.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 561025
+  },
+  {
+    "file": "docs/poster-check/TGA.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 550490
+  },
+  {
+    "file": "docs/poster-check/TGM.png",
+    "width": 4318,
+    "height": 7680,
+    "bytes": 556839
+  }
+]

@@ -1,0 +1,17 @@
+<view class="page home-page">
+  <view class="brand-row"><text class="brand" aria-label="{{copy.brand}}"><text class="brand-chatgpt">{{copy.brand[0]}}</text><text class="brand-claude">{{copy.brand[1]}}</text><text class="brand-deepseek">{{copy.brand[2]}}</text><text class="brand-kimi">{{copy.brand[3]}}</text></text><text class="pill">{{copy.home.badge}}</text></view>
+  <view class="hero-heading"><text class="title">{{copy.home.title}}</text></view>
+  <view wx:if="{{friendMessage}}" class="friend-banner" aria-live="polite"><text class="friend-symbol">↗</text><text>{{friendMessage}}</text></view>
+  <view class="identity">
+    <image wx:if="{{assets.hero}}" class="hero-image" src="{{assets.hero}}" mode="aspectFit" />
+    <view wx:else class="specimen" aria-hidden="true"></view>
+  </view>
+  <view class="assistant-showcase">
+    <image class="assistant-strip" src="{{assets.assistantStrip}}" mode="aspectFit" aria-hidden="true" />
+    <view class="assistant-names"><text wx:for="{{copy.home.assistants}}" wx:key="*this" class="assistant-name">{{item}}</text></view>
+  </view>
+  <view class="test-summary">{{copy.home.summary}}</view>
+  <view class="start-area"><view wx:if="{{singlePage}}" class="panel friend-banner">{{sharingCopy.timelineHint}}</view><button wx:else class="primary start-button pressable" hover-class="button-pressed" bindtap="openQuiz"><text>{{copy.home.action}}</text></button></view>
+  <view wx:if="{{showDiagnostics && !singlePage}}" class="diagnostics panel"><view class="diagnostics-title">{{copy.diagnostics.title}}</view><view class="muted">{{modeLabel}}</view><button class="secondary" bindtap="checkCloud" loading="{{checking}}" disabled="{{checking}}">{{checking ? copy.diagnostics.loading : copy.diagnostics.action}}</button><view class="muted" aria-live="polite">{{checkMessage}}</view></view>
+  <view class="footer"><view wx:if="{{showDiagnostics}}">{{copy.home.stage}}</view><button wx:if="{{!singlePage}}" class="privacy-link" bindtap="readPrivacy">{{copy.home.privacyLink}}</button></view>
+</view>

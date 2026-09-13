@@ -1,0 +1,18 @@
+{
+  "name": "aiti-miniprogram",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "node tests/run.js",
+    "test:m0": "node tests/m0.test.js",
+    "test:m1": "node utils/scoring.test.js",
+    "test:m2": "node tests/m2.test.js",
+    "test:m3": "node tests/m3.test.js",
+    "test:m4": "node tests/m4.test.js",
+    "test:m5": "node tests/m5.test.js",
+    "test:m6": "node tests/m6.test.js",
+    "test:m7": "node tests/m7.test.js",
+    "check:release": "node tests/release-audit.js",
+    "sync:cloud": "node tests/sync-cloud.js"
+  }
+}

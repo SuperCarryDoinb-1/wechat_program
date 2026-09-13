@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "type-card": "/components/type-card/type-card",
+    "quadrant-map": "/components/quadrant-map/quadrant-map"
+  }
+}

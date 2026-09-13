@@ -1,0 +1,22 @@
+/* AITI / Neobrutalism */
+page { background: #FFF4DA; color: #202020; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; }
+view, text, button { box-sizing: border-box; }
+button::after { border: none; }
+button { margin: 0; font: inherit; }
+.page { max-width: 900rpx; margin: 0 auto; padding: 32rpx 36rpx 40rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); }
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; }
+.brand { font-size: 46rpx; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+.pill { border: 2px solid #202020; background: #C9B6FF; border-radius: 6px; padding: 9rpx 18rpx; font-size: 12px; color: #505050; }
+.eyebrow { color: #616858; font-size: 12px; letter-spacing: 3rpx; margin: 40rpx 0 18rpx; }
+.title { display: block; font-size: 32px; line-height: 1.2; font-weight: 700; white-space: pre-line; letter-spacing: -1px; }
+.subtitle { color: #505050; line-height: 1.8; margin-top: 22rpx; font-size: 14px; }
+.panel { background: #FFFFFF; border: 2px solid #202020; border-radius: 8px; padding: 32rpx; box-shadow: 4px 4px 0 #202020; }
+.primary { width: 100%; background: #A8C7FA; color: #202020; border: 2px solid #202020; box-shadow: 4px 4px 0 #202020; font-weight: 800; line-height: 1.5; padding: 27rpx 24rpx; border-radius: 8px; min-height: 48px; }
+.secondary { background: #C9B6FF; color: #202020; padding: 22rpx; line-height: 1.5; border: 2px solid #202020; border-radius: 8px; }
+.muted { color: #505050; font-size: 12px; line-height: 1.8; }
+.footer { color: #505050; font-size: 12px; text-align: center; margin-top: 36rpx; line-height: 1.8; }
+.placeholder { margin: 44rpx 0; min-height: 320rpx; display: flex; flex-direction: column; justify-content: center; gap: 20rpx; }
+.placeholder .title { font-size: 46rpx; }
+.pressable { transition: background-color 120ms ease, transform 120ms ease; }
+.button-pressed { transform: translate(2px, 2px); box-shadow: none !important; }
+@media (prefers-reduced-motion: reduce) { .pressable { transition: none; } }

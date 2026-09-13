@@ -1,0 +1,32 @@
+.type-card { position: relative; padding: 30rpx; border: 2px solid #202020; border-radius: 8px; box-shadow: 5px 5px 0 #202020; background: #FFFFFF; color: #202020; overflow: hidden; }
+.hidden-card { background: #FFF0B8; }
+.card-top { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.rarity { font-size: 12px; border-radius: 30rpx; background: #3B4433; color: #DAE4CE; padding: 5px 10px; white-space: nowrap; }
+.rarity-hidden { background: #FFF4D6; color: #916610; border: 1px solid #EEDDAA; }
+.art-stage { position: relative; margin: 20rpx -30rpx 0; padding: 12rpx 30rpx 0; background: #C9B6FF; border-top: 2px solid #202020; border-bottom: 2px solid #202020; overflow: hidden; }
+.portrait { display: block; position: relative; width: 300rpx; height: 270rpx; margin: 14rpx auto 0; }
+.avatar { position: relative; }
+.halo { position: absolute; border: 1px solid currentColor; border-radius: 50%; }
+.halo-outer { width: 294rpx; height: 140rpx; left: 3rpx; top: 75rpx; opacity: .4; transform: rotate(-25deg); }
+.halo-inner { width: 226rpx; height: 226rpx; left: 37rpx; top: 15rpx; opacity: .15; }
+.avatar-head { position: absolute; width: 142rpx; height: 124rpx; background: currentColor; border-radius: 42rpx; left: 80rpx; top: 52rpx; border: 2px solid #202020; box-shadow: 4px 4px 0 #202020; }
+.antenna { position: absolute; width: 12rpx; height: 27rpx; background: currentColor; top: -22rpx; left: 65rpx; border-radius: 8rpx; }
+.eye { position: absolute; width: 14rpx; height: 23rpx; background: #25324A; border-radius: 8rpx; top: 39rpx; }
+.eye-left { left: 35rpx; } .eye-right { right: 35rpx; }
+.mouth { position: absolute; width: 32rpx; height: 12rpx; border-bottom: 4rpx solid #25324A; border-radius: 50%; left: 55rpx; bottom: 26rpx; }
+.avatar-body { position: absolute; width: 166rpx; height: 54rpx; left: 68rpx; top: 189rpx; background: currentColor; border-radius: 56rpx 56rpx 18rpx 18rpx; border: 2px solid #202020; }
+.spark { width: 14rpx; height: 14rpx; background: currentColor; position: absolute; transform: rotate(45deg); border-radius: 3rpx; }
+.spark-one { left: 26rpx; top: 44rpx; } .spark-two { right: 20rpx; bottom: 32rpx; }
+.avatar-TEM .antenna { width: 52rpx; left: 45rpx; height: 20rpx; top: -17rpx; border-radius: 4rpx; }
+.avatar-TEA .eye { height: 5rpx; top: 50rpx; }
+.avatar-PEM .halo-outer { border-width: 4rpx; opacity: .4; }
+.avatar-PEA .halo-inner { top: 10rpx; left: 80rpx; width: 142rpx; height: 26rpx; opacity: .8; border-width: 3rpx; }
+.avatar-TGM .eye { width: 29rpx; height: 29rpx; border: 3rpx solid #25324A; background: transparent; top: 35rpx; border-radius: 50%; }
+.avatar-TGM .eye-left { left: 24rpx; } .avatar-TGM .eye-right { right: 24rpx; }
+.avatar-TGA .mouth { border-radius: 0; }
+.avatar-PGM .avatar-head { border-radius: 20rpx; } .avatar-PGM .antenna { transform: rotate(30deg); }
+.avatar-PGA .mouth { height: 18rpx; width: 42rpx; left: 50rpx; }
+.type-code { display: block; text-align: center; letter-spacing: 6rpx; font-size: 13px; font-weight: 600; margin-top: 16rpx; color: #505050; }
+.type-name { margin: 12rpx 0 18rpx; font-size: 30px; line-height: 1.3; font-weight: 900; text-align: center; letter-spacing: 0; overflow-wrap: break-word; }
+.slogan { color: #202020; text-align: center; font-size: 15px; line-height: 1.7; }
+.persona { border-top: 1px solid #202020; margin-top: 28rpx; padding-top: 24rpx; font-size: 16px; line-height: 1.9; color: #505050; }

@@ -1,0 +1,24 @@
+<view class="page quiz-page" wx:if="{{question}}">
+  <view class="quiz-header"><text class="brand">{{copy.brand}}</text><view class="progress-heading"><text>{{copy.quiz.countPrefix}} <text class="current-number">{{number}}</text> / {{total}}</text></view></view>
+  <view class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="{{total}}" aria-valuenow="{{answered}}"><view class="progress-fill" style="width: {{progress}}%;"></view></view>
+  <view wx:for="{{[question.id]}}" wx:key="*this" class="question-stage">
+  <view class="scene-card" style="color: #202020; background-color: {{sceneColor}};">
+    <view class="scene-visual">
+    <image wx:if="{{image}}" class="scene-image" src="{{image}}" mode="aspectFit" binderror="imageFailed" data-question-id="{{question.id}}" />
+    <view wx:else class="scene-art motif-{{scene.motif}}" aria-hidden="true"><view class="art-orbit"></view><view class="art-body"><view class="art-line line-one"></view><view class="art-line line-two"></view><view class="art-dot"></view></view><view class="art-star"></view></view>
+    </view>
+    <text class="scene-caption">{{scene.caption}}</text>
+  </view>
+  <view class="question-title">{{question.title}}</view>
+  <view class="options">
+    <button wx:for="{{question.options}}" wx:key="label" class="option {{selected === index ? 'option-selected' : ''}}" style="{{selected === index ? 'background-color: ' + selectedColor + ';' : ''}}" hover-class="button-pressed" bindtap="selectOption" data-option="{{index}}" data-question-id="{{question.id}}" disabled="{{transitioning || submitting}}" aria-pressed="{{selected === index}}">
+      <view class="option-label" aria-hidden="true">{{selected === index ? '✓' : item.label}}</view><view class="option-text">{{item.text}}</view>
+    </button>
+  </view>
+  </view>
+  <view wx:if="{{submitError}}" class="submit-error" aria-live="polite"><view>{{submitError}}</view><button class="secondary" bindtap="retryFinish" disabled="{{submitting}}">{{copy.quiz.retry}}</button></view>
+  <view class="quiz-bottom">
+    <button class="quiz-nav previous" hover-class="button-pressed" bindtap="previousQuestion" disabled="{{index === 0 || submitting}}">{{copy.quiz.previous}}</button>
+    <button class="quiz-nav next" hover-class="button-pressed" bindtap="nextQuestion" data-question-id="{{question.id}}" disabled="{{selected < 0 || transitioning || submitting}}" loading="{{submitting}}">{{index === total - 1 ? copy.quiz.finish : copy.quiz.next}}</button>
+  </view>
+</view>

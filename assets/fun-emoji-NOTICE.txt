@@ -1,0 +1,14 @@
+Fun Emoji Set by Davis Uche
+Source: https://www.figma.com/community/file/968125295144990435
+Via: https://www.dicebear.com/styles/fun-emoji/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Adapted in pages/index/index.wxss: cute eyes and cute mouth paths were
+scaled, repositioned and recolored. The original square background was
+replaced with a filled AI letter silhouette based on the user's AI.png.
+Cheeks and a body highlight were added. No endorsement is implied.
+The adapted illustration is also provided under CC BY 4.0.
+
+Reproducible facial source:
+https://api.dicebear.com/9.x/fun-emoji/svg?seed=AITI&eyes=cute&mouth=cute
