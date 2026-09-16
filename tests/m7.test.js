@@ -10,10 +10,10 @@ const copy = require('../config/copy');
 const { audit } = require('./release-audit');
 const root = path.join(__dirname, '..');
 function page(name, wx, service) {
-  const file = path.join(root, `pages/${name}/${name}.js`), localRequire = createRequire(file);
+  const file = path.join(root, `utils/screens/${name}.js`), localRequire = createRequire(file);
   let definition; const tasks = new Map(); let sequence=0;
   vm.runInNewContext(fs.readFileSync(file, 'utf8'), {
-    Page: value => { definition = value; }, wx,
+    module: { set exports(value) { definition = value; } }, wx,
     require: name => name === '../../utils/content-service' ? service : localRequire(name),
     setTimeout: fn => { tasks.set(++sequence, fn); return sequence; }, clearTimeout: id => tasks.delete(id)
   });

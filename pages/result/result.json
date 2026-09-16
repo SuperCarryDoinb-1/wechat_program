@@ -1,5 +1,6 @@
 {
   "usingComponents": {
+    "pet-companion": "/components/pet-companion/pet-companion",
     "type-card": "/components/type-card/type-card",
     "quadrant-map": "/components/quadrant-map/quadrant-map"
   }

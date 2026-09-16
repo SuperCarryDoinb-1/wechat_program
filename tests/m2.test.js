@@ -12,8 +12,8 @@ const { calc } = require('../utils/scoring');
 const fixtures = require('./m1-fixtures.json');
 const snapshot = value => JSON.parse(JSON.stringify(value));
 
-function harness(file = 'pages/quiz/quiz.js', options = {}) {
-  let definition, sequence = 0;
+function harness(file = 'utils/screens/quiz.js', options = {}) {
+  let definition, sequence = 0, now = 1000;
   const timers = new Map(), storage = new Map();
   const calls = { redirect: [], navigate: [], scroll: [], writes: [], toasts: [] };
   const state = { saveFails: false, redirectFails: false, navigateFails: false };
@@ -30,7 +30,7 @@ function harness(file = 'pages/quiz/quiz.js', options = {}) {
   const filename = path.join(__dirname, '..', file);
   const localRequire = createRequire(filename);
   const context = {
-    Page(value) { definition = value; }, wx,
+    module: { set exports(value) { definition = value; } }, wx,
     require(name) {
       if (name === '../../utils/content-service') return { start: () => Promise.resolve() };
       if (name === '../../utils/navigation') return {
@@ -38,19 +38,25 @@ function harness(file = 'pages/quiz/quiz.js', options = {}) {
       };
       return localRequire(name);
     },
-    setTimeout(callback, delay) { const id = ++sequence; timers.set(id, { callback, delay }); return id; },
+    Date: { now: () => now },
+    setTimeout(callback, delay) { const id = ++sequence; timers.set(id, { callback, delay, due: now + delay }); return id; },
     clearTimeout(id) { timers.delete(id); }
   };
   vm.runInNewContext(fs.readFileSync(filename, 'utf8'), context, { filename });
   const page = Object.assign({}, definition, {
     data: snapshot(definition.data),
-    setData(update) { assert.ok(!this._disposed, '卸载后不应更新页面'); Object.assign(this.data, snapshot(update)); }
+    setData(update, done) { assert.ok(!this._disposed, '卸载后不应更新页面'); Object.assign(this.data, snapshot(update)); if (done) done(); }
   });
   if (page.onLoad) page.onLoad();
   if (!options.hidden && page.onShow) page.onShow();
-  function tick() {
-    const queued = [...timers.values()]; timers.clear();
-    queued.forEach(item => { assert.equal(item.delay, 200); item.callback(); });
+  function tick(ms = quizConfig.transitionMs) {
+    const end = now + ms;
+    while (true) {
+      const next = [...timers.entries()].filter(([, timer]) => timer.due <= end).sort((a, b) => a[1].due - b[1].due)[0];
+      if (!next) break;
+      now = next[1].due; timers.delete(next[0]); next[1].callback();
+    }
+    now = end;
   }
   function choose(option, questionId = page.data.question.id) {
     page.selectOption({ currentTarget: { dataset: { option, questionId } } });
@@ -60,10 +66,251 @@ function harness(file = 'pages/quiz/quiz.js', options = {}) {
   }
   function advance() { next(); tick(); }
   function complete(answers = fixtures.types.TEM) { answers.forEach(answer => { choose(answer); tick(); }); }
-  return { page, calls, state, storage, timers, tick, choose, next, advance, complete, wx };
+  return { page, calls, state, storage, timers, tick, choose, next, advance, complete, wx,
+    get pendingAdvances() { return [...timers.values()].filter(timer => timer.delay === quizConfig.transitionMs).length; } };
 }
 
-test('M2：12 题选择后高亮，200ms 自动切题，最终结果完整存储后跳转', () => {
+test('pet: home protects the start button and discards stale scroll and hidden layout callbacks', () => {
+  const h = harness('utils/screens/index.js'), queries = [];
+  h.wx.createSelectorQuery = () => {
+    const query = {
+      selectAll(selector) { assert.ok(selector.includes('.start-area')); return query; },
+      boundingClientRect(callback) { queries.push(callback); return query; }, exec() {}
+    };
+    return query;
+  };
+  const button = { left: 15, right: 360, top: 410, bottom: 485 };
+  h.page.onReady(); queries.shift()([button]);
+  assert.equal(h.page.data.petLayoutReady, true);
+  assert.deepEqual(h.page.data.petAvoidRects, [button]);
+  h.page.refreshPetObstacles(); const stale = queries.shift();
+  h.page.onPageScroll(); stale([button]);
+  assert.equal(h.page.data.petLayoutReady, true); assert.equal(h.page.data.petScrolling, true);
+  h.page.openQuiz(); assert.equal(h.calls.navigate.length, 1);
+  const timer = [...h.timers.values()][0]; h.timers.clear();
+  assert.equal(timer.delay, 32); timer.callback();
+  queries.shift()([{ ...button, top: 310, bottom: 385 }]);
+  assert.equal(h.page.data.petScrolling, false); assert.equal(h.page.data.petAvoidRects[0].top, 310);
+  h.page.onResize(); const hiddenQuery = queries.shift();
+  h.page.onHide(); const hidden = snapshot(h.page.data); hiddenQuery([button]);
+  assert.deepEqual(h.page.data, hidden);
+  h.page.onShow(); queries.shift()(null); assert.equal(h.page.data.petLayoutReady, false);
+  h.page.onReady(); queries.shift()([button]); assert.equal(h.page.data.petLayoutReady, true);
+  h.page.onPageScroll(); const lateTimer = [...h.timers.values()][0].callback;
+  h.page.onUnload(); lateTimer(); h.page.onResize(); assert.equal(h.timers.size, 0);
+});
+
+test('pet: quiz header keeps the same PNG and size as home without platform measurements', () => {
+  const h = harness(), petConfig = require('../config/pet');
+  const wxml = fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz-view.wxml'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz-view.wxss'), 'utf8');
+  const source = fs.readFileSync(path.join(__dirname, '../utils/screens/quiz.js'), 'utf8');
+  const header = wxml.slice(0, wxml.indexOf('<view class="quiz-progress"'));
+  const imageNode = header.slice(header.indexOf('<view class="quiz-pet"'));
+  assert.ok(imageNode.startsWith('<view class="quiz-pet"'));
+  assert.match(header, /class="quiz-header quiz-heading"[\s\S]*class="screen-home pressable"[\s\S]*class="quiz-pet"[\s\S]*class="progress-heading"/);
+  assert.doesNotMatch(imageNode, /wx:if|hidden=|petRoamingVisible|available/);
+  assert.doesNotMatch(wxml, /<pet-companion/);
+  assert.ok(imageNode.includes("src=\"{{petImage || '" + petConfig.image + "'}}\""));
+  assert.ok(imageNode.includes('width: {{petSize || ' + petConfig.size + '}}px; height: {{petSize || ' + petConfig.size + '}}px;'));
+  assert.equal(h.page.data.petImage, petConfig.image);
+  assert.equal(h.page.data.petSize, petConfig.size);
+  assert.match(css, /\.quiz-pet\s*\{[^}]*position: relative[^}]*flex-shrink: 0/);
+  assert.match(imageNode, /catchtap="tapPet"/);
+  assert.doesNotMatch(source, /petVisibilityChanged|refreshPetObstacles|petLayoutReady/);
+  // Missing or broken platform measurement APIs cannot hide this native image.
+  h.wx.createSelectorQuery = () => { throw Error('unavailable'); };
+  h.page.onHide(); h.page.onShow();
+  assert.equal(h.page.data.petSize, petConfig.size);
+  assert.equal(h.page.data.question.id, questions[0].id);
+  h.page.onUnload(); assert.equal(h.timers.size, 0);
+});
+
+test('pet: answer reactions run independently of the question transition', () => {
+  const h = harness();
+  h.page.selectComponent = () => { throw Error('must not need a component'); };
+  const originalBeat = h.page.data.petBeat;
+  h.choose(1); const beat = h.page.data.petBeat;
+  assert.notEqual(beat, originalBeat);
+  h.choose(2); assert.equal(h.page.data.petBeat, beat);
+  assert.equal(h.pendingAdvances, 1);
+  h.tick(); assert.equal(h.page.data.index, 1);
+  h.choose(2); assert.equal(h.page.data.petBeat, beat, 'Do not restart a reaction during the next question');
+  assert.equal(h.pendingAdvances, 1); h.tick();
+  assert.equal(h.page.data.index, 2);
+  h.page.submissionFailed('retry');
+  assert.equal(h.page.data.petSize, require('../config/pet').size);
+  h.page.onUnload(); assert.equal(h.timers.size, 0);
+});
+
+test('pet: tapping the quiz pet cheers repeatedly without answering or navigating', () => {
+  const h = harness();
+  const touch = { touches: [{ clientX: 260, clientY: 50, identifier: 1 }] };
+  h.page.petTouchStart(touch); h.page.petTouchEnd(); h.page.tapPet();
+  assert.equal(h.page.data.petMood, 'happy');
+  const beat = h.page.data.petBeat;
+  h.page.tapPet(); assert.equal(h.page.data.petBeat, beat);
+  assert.equal(h.page.data.selected, -1); assert.equal(h.page.data.answered, 0);
+  assert.equal(h.pendingAdvances, 0); assert.equal(h.calls.redirect.length, 0);
+  h.tick(require('../config/pet').reactionMs);
+  assert.notEqual(h.page.data.petBeat, beat, 'A queued tap plays after the current reaction');
+  h.tick(require('../config/pet').reactionMs); assert.equal(h.page.data.petMood, 'idle');
+  h.page.onHide(); h.page.tapPet(); assert.equal(h.timers.size, 0);
+  h.page.onShow(); h.page.tapPet(); assert.equal(h.page.data.petMood, 'happy');
+  h.page.onUnload(); h.tick(1200); assert.equal(h.timers.size, 0);
+});
+
+test('pet: quiz movement and dragging stay between home and count at phone widths; release resumes motion', () => {
+  for (const width of [320, 375, 430]) {
+    const h = harness(), height = 667;
+    const anchor = { left: 100, right: width - 100, top: 24, bottom: 128 };
+    const obstacles = [
+      { left: 16, right: 96, top: 60, bottom: 92 },
+      { left: width - 96, right: width - 16, top: 60, bottom: 92 },
+      { left: 0, right: width, top: 132, bottom: height }
+    ];
+    h.wx.getWindowInfo = () => ({ windowWidth: width, windowHeight: height });
+    h.wx.createSelectorQuery = () => {
+      const q = { select() { return q; }, selectAll() { return q; }, boundingClientRect() { return q; },
+        exec(done) { done([anchor, obstacles]); } };
+      return q;
+    };
+    h.page.onReady(); assert.equal(h.page.data.petFloating, true);
+    const start = { x: h.page.data.petX, y: h.page.data.petY };
+    const checkPosition = () => {
+      const { petX: x, petY: y, petSize: size } = h.page.data;
+      assert.ok(x >= 0 && x + size <= width && y >= 0 && y + size <= height);
+      assert.ok(x >= anchor.left && x + size <= anchor.right && y >= anchor.top && y + size <= anchor.bottom,
+        'The pet must remain in the middle header slot, including after dragging');
+      for (const r of obstacles) assert.equal(x < r.right && x + size > r.left && y < r.bottom && y + size > r.top, false);
+    };
+    for (let i = 0; i < 100; i++) { h.tick(80); checkPosition(); }
+    assert.ok(h.page.data.petX !== start.x || h.page.data.petY !== start.y);
+    h.page.petTouchStart({ touches: [{ clientX: 0, clientY: 0, identifier: 1 }] });
+    const dragX = h.page.data.petX < (anchor.left + anchor.right - h.page.data.petSize) / 2 ? 999 : -999;
+    h.page.petTouchMove({ touches: [{ clientX: dragX, clientY: 999, identifier: 1 }] });
+    checkPosition(); h.page.petTouchEnd();
+    assert.equal(h.page.data.petMood, 'wave');
+    const beat = h.page.data.petBeat;
+    h.page.tapPet(); assert.equal(h.page.data.petBeat, beat, 'drag release must not trigger a second tap');
+    assert.ok(h.timers.has(h.page._pet._timers.motion));
+    h.tick(400); h.page.tapPet(); assert.equal(h.page.data.petMood, 'wave');
+    h.tick(require('../config/pet').reactionMs - 400); assert.equal(h.page.data.petMood, 'happy');
+    h.choose(1); h.tick(200); assert.equal(h.page.data.index, 1);
+    checkPosition(); assert.equal(h.page.data.petFloating, true);
+    h.page.onUnload(); assert.equal(h.timers.size, 0);
+  }
+});
+
+test('pet: stale quiz layout results cannot revive a hidden pet; missing bounds keep native tap feedback', () => {
+  const h = harness(), pending = [];
+  h.wx.getWindowInfo = () => ({ windowWidth: 375, windowHeight: 667 });
+  h.wx.createSelectorQuery = () => {
+    const q = { select() { return q; }, selectAll() { return q; }, boundingClientRect() { return q; },
+      exec(done) { pending.push(done); } };
+    return q;
+  };
+  h.page.onReady(); h.page.onPageScroll();
+  const rects = [{ left: 243, right: 347, top: 34, bottom: 138 }, [{ left: 0, right: 375, top: 180, bottom: 667 }]];
+  pending.shift()(rects); assert.equal(h.page.data.petFloating, false);
+  h.page.onHide(); const hidden = snapshot(h.page.data);
+  pending.shift()(rects); assert.deepEqual(h.page.data, hidden);
+  h.page.onShow(); pending.shift()([null, []]);
+  h.page.tapPet(); assert.equal(h.page.data.petMood, 'happy');
+  assert.equal(h.page.data.petFloating, false);
+  h.page.onResize(); const late = pending.shift();
+  h.page.onUnload(); late(rects); h.tick(1500); assert.equal(h.timers.size, 0);
+});
+
+test('pet: all 12 question layouts preserve roaming position, destination and the current animation', () => {
+  const h = harness(), writes = [], originalSetData = h.page.setData;
+  h.wx.getWindowInfo = () => ({ windowWidth: 375, windowHeight: 667 });
+  h.wx.createSelectorQuery = () => {
+    const q = { select() { return q; }, selectAll() { return q; }, boundingClientRect() { return q; },
+      exec(done) { done([{ left: 116, right: 259, top: 24, bottom: 128 }, [
+        { left: 16, right: 112, top: 60, bottom: 92 },
+        { left: 263, right: 359, top: 60, bottom: 92 },
+        { left: 0, right: 375, top: 132, bottom: 667 }
+      ]]); } };
+    return q;
+  };
+  h.page.onReady(); h.tick(80); h.page.tapPet();
+  h.page.setData = function(update, done) { writes.push(update); originalSetData.call(this, update, done); };
+  for (let i = 0; i < questions.length; i++) {
+    const position = { x: h.page.data.petX, y: h.page.data.petY };
+    const target = { ...h.page._pet._target };
+    const movement = h.page._pet._timers.motion, reaction = h.page._pet._timers.reaction;
+    h.page.showQuestion(i); h.page.onReady(); h.page.onPageScroll({ scrollTop: 0 });
+    assert.deepEqual({ x: h.page.data.petX, y: h.page.data.petY }, position);
+    assert.deepEqual(h.page._pet._target, target);
+    assert.equal(h.page._pet._timers.motion, movement);
+    assert.equal(h.page._pet._timers.reaction, reaction);
+    assert.equal(h.page.data.petFloating, true);
+    h.tick(80);
+  }
+  assert.equal(writes.filter(update => update.petFloating === false).length, 0);
+  h.page.onHide(); const position = { x: h.page.data.petX, y: h.page.data.petY };
+  h.tick(2000); h.page.onShow();
+  assert.deepEqual({ x: h.page.data.petX, y: h.page.data.petY }, position);
+  h.page.onUnload(); assert.equal(h.timers.size, 0);
+});
+
+test('quiz: selected options match the current card after going back, changing answers and going forward', () => {
+  const h = harness();
+  const wxml = fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz-view.wxml'), 'utf8');
+  const optionStyle = wxml.match(/class="option [^"]*" style="{{([\s\S]*?)}}"/)[1];
+  function checkHighlight() {
+    for (let index = 0; index < 4; index++) {
+      const actual = vm.runInNewContext(optionStyle, { ...h.page.data, index });
+      const expected = index === h.page.data.selected ? `background-color: ${h.page.data.sceneColor};` : '';
+      assert.equal(actual, expected, 'Only the selected option must match the visible question card');
+    }
+  }
+  try {
+    checkHighlight();
+    h.choose(0); checkHighlight(); h.tick();
+    h.choose(1); checkHighlight(); h.tick();
+    for (const answer of [3, 2, 0]) {
+      h.page.previousQuestion();
+      assert.equal(h.page.data.index, 1);
+      checkHighlight();
+      const color = h.page.data.sceneColor;
+      h.choose(answer);
+      assert.equal(h.page.data.selected, answer);
+      assert.equal(h.page.data.sceneColor, color);
+      assert.equal(h.page.data.answered, 2);
+      checkHighlight(); h.tick(); checkHighlight();
+    }
+    h.page.previousQuestion(); checkHighlight();
+    h.advance(); checkHighlight();
+    h.page.previousQuestion(); checkHighlight();
+    h.page.previousQuestion();
+    assert.equal(h.page.data.selected, 0);
+    checkHighlight();
+  } finally { h.page.onUnload(); }
+});
+
+test('quiz: preserves feedback before advancing and scrolls only when needed', () => {
+  const h = harness();
+  h.choose(1);
+  assert.equal(h.page.data.transitioning, true);
+  assert.equal(h.page.data.selected, 1);
+  h.tick(quizConfig.transitionMs - 1);
+  assert.equal(h.page.data.index, 0);
+  h.tick(1);
+  assert.equal(h.page.data.index, 1);
+  assert.equal(h.calls.scroll.length, 0);
+  h.page.onPageScroll({ scrollTop: 180 });
+  h.choose(2); h.tick();
+  assert.equal(h.calls.scroll.length, 1);
+  assert.equal(h.calls.scroll[0].scrollTop, 0);
+  h.page.onPageScroll({ scrollTop: 0 });
+  h.page.previousQuestion();
+  assert.equal(h.calls.scroll.length, 1);
+  h.page.onUnload();
+});
+
+test('M2：12 题选择后高亮，120ms 自动切题，最终结果完整存储后跳转', () => {
   const h = harness();
   const answers = fixtures.types.TEM;
   let previousSceneColor = '';
@@ -82,7 +329,7 @@ test('M2：12 题选择后高亮，200ms 自动切题，最终结果完整存储
     assert.equal(h.page.data.answered, i + 1);
     assert.equal(h.calls.redirect.length, 0);
     assert.equal(h.page.data.transitioning, true);
-    assert.equal(h.timers.size, 1);
+    assert.equal(h.pendingAdvances, 1);
     assert.equal(h.calls.writes.length, 0);
     h.tick();
   });
@@ -106,16 +353,16 @@ test('M2：未选择不能继续，重复选项、下一题及旧题事件不会
   h.choose(1);
   h.choose(3);
   assert.equal(h.page.data.selected, 1);
-  assert.equal(h.timers.size, 1);
+  assert.equal(h.pendingAdvances, 1);
   h.next(); h.next(); h.choose(0);
   assert.equal(h.page.data.selected, 1);
-  assert.equal(h.timers.size, 1);
+  assert.equal(h.pendingAdvances, 1);
   h.tick();
   h.choose(2, 1);
   h.next(1);
   assert.equal(h.page.data.index, 1);
   assert.equal(h.page.data.selected, -1);
-  assert.equal(h.timers.size, 0);
+  assert.equal(h.pendingAdvances, 0);
 });
 
 test('M2：返回保留选择，修改后按新答案计分，不重复累加', () => {
@@ -166,7 +413,7 @@ test('M2：切后台暂停计时，回前台继续一次，不在后台提交', 
   h.page.onHide(); h.tick();
   assert.equal(h.calls.writes.length, 0);
   h.page.onShow(); h.page.onShow();
-  assert.equal(h.timers.size, 1);
+  assert.equal(h.pendingAdvances, 1);
   h.tick();
   assert.equal(h.calls.writes.length, 1);
   assert.equal(h.calls.redirect.length, 1);
@@ -213,7 +460,7 @@ test('M2：无图/图片加载失败使用对应占位，旧图片错误不影�
 });
 
 test('M2：首页开始按钮防重复，失败或返回后能再次开始', () => {
-  const h = harness('pages/index/index.js');
+  const h = harness('utils/screens/index.js');
   h.page.openQuiz(); h.page.openQuiz();
   assert.equal(h.calls.navigate.length, 1);
   h.page.onShow(); h.state.navigateFails = true;
@@ -224,8 +471,11 @@ test('M2：首页开始按钮防重复，失败或返回后能再次开始', () 
 
 test('M2：布局采用自然滚动，四选项无固定遮挡；小屏真机仍需人工验收', () => {
   const base = fs.readFileSync(path.join(__dirname, '../app.wxss'), 'utf8');
-  const css = fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz.wxss'), 'utf8');
-  assert.ok(!/position\s*:\s*fixed/.test(base + css));
+  const css = fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz-view.wxss'), 'utf8');
+  const fixedRules = [...(base + css).matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(match => /position\s*:\s*fixed/.test(match[2]));
+  assert.equal(fixedRules.length, 1);
+  assert.equal(fixedRules[0][1].trim(), '.quiz-pet-motion.is-roaming');
   assert.ok(!/disableScroll/.test(fs.readFileSync(path.join(__dirname, '../pages/quiz/quiz.json'), 'utf8')));
   const optionRule = css.match(/\.option\s*\{([^}]+)\}/)[1];
   assert.ok(Number(optionRule.match(/min-height:\s*(\d+)px/)[1]) >= 48);

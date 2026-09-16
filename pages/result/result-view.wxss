@@ -1,0 +1,53 @@
+.result-page { padding: 24rpx 32rpx; padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+.result-brand-actions { display: flex; align-items: center; gap: 8px; }
+.result-brand-actions .screen-home { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 96px; margin: 0; padding: 0 8px; height: 32px; line-height: 1; background: #D6EBCB; color: #202020; font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid #202020; border-radius: 6px; box-shadow: 2px 2px 0 #202020; }
+.card-wrap { margin-top: 24rpx; position: relative;  }
+.section { margin-top: 32rpx; padding: 28rpx; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 16px; line-height: 1.5; font-weight: 700; }
+.small-label { font-size: 12px; font-weight: 400; color: #505050; flex-shrink: 0; background: #FFF4DA; padding: 4px 7px; border-radius: 6px; }
+.roast-panel { background: #FFE17D; border-color: #202020; }
+.skeletons { margin-top: 24rpx; }
+.skeleton { height: 12px; border-radius: 6px; background: #202020; margin-top: 12px; animation: skeleton-breathe 1.2s ease-in-out 3; }
+.skeleton.short { width: 70%; }
+.pending-label { display: block; font-size: 12px; line-height: 1.7; color: #505050; margin-top: 16px; }
+.roast-content { font-size: 18px; line-height: 1.85; font-weight: 600; color: #202020; margin-top: 22rpx; overflow-wrap: break-word; }
+.tips-content { margin-top: 16rpx; }
+.tip-row { display: flex; gap: 12px; padding: 20rpx 0; border-bottom: 1px solid #EEEEF0; font-size: 15px; line-height: 1.8; color: #363636; overflow-wrap: break-word; }
+.tip-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.tip-number { font-weight: 700; flex-shrink: 0; color: #202020; background: #A8C7FA; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 8px; }
+.map-hint { color: #505050; font-size: 12px; line-height: 1.7; margin: 10rpx 0 22rpx; }
+.lead-badge { text-align: center; font-size: 13px; margin-top: 20rpx; background: #C9B6FF; border: 2px solid #202020; border-radius: 6px; padding: 14rpx; color: #202020; font-weight: 700; }
+.details-toggle { background: transparent; color: #202020; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0; text-align: left; line-height: 1.5; font-size: 16px; }
+.toggle-label { color: #202020; font-size: 12px; flex-shrink: 0; }
+.details-content { padding-bottom: 10rpx;  }
+.detail-title { font-size: 14px; font-weight: 700; margin: 28rpx 0 14rpx; color: #202020; }
+.detail-line { font-size: 15px; color: #363636; line-height: 1.85; margin-bottom: 8rpx; padding-left: 12px; border-left: 2px solid #DCE8FA; }
+.scene-quote { font-size: 15px; line-height: 1.9; color: #363636; background: #FFF4DA; padding: 22rpx; border-radius: 16rpx; }
+.relation { display: flex; gap: 14px; font-size: 14px; line-height: 1.7; margin-top: 22rpx; color: #363636; }
+.relation-label { flex: 0 0 70px; color: #505050; font-size: 12px; }
+.reason { color: #505050; font-size: 12px; }
+.action-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 12px 16px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); border-top: 2px solid #202020; background: #FFF4DA; }
+.action-inner { width: 100%; min-width: 0; max-width: 440px; margin: 0 auto; display: flex; gap: 8px; align-items: stretch; }
+.result-page .action-inner button { display: flex; align-items: center; justify-content: center; flex: 1 1 0; width: 0; min-width: 0; height: 48px; min-height: 48px; box-sizing: border-box; margin: 0; padding: 0 6px; font-size: 13px; font-weight: 700; line-height: 20px; text-align: center; white-space: nowrap; border: 2px solid #202020; border-radius: 6px; background: #A8C7FA; color: #202020; box-shadow: 3px 3px 0 #202020; }
+.home-link { margin-top: 20rpx; padding: 12px; background: transparent; color: #202020; font-size: 14px; }
+.reveal-status { display: flex; justify-content: space-between; align-items: center; margin-top: 20rpx; color: #705311; font-size: 13px; }
+.skip { font-size: 12px; line-height: 1.5; padding: 10px; background: #F2E6C1; color: #705311; border-radius: 12px; }
+.revealing { animation: reveal-card 1.2s ease-out both; }
+.particles { position: absolute; inset: 0; pointer-events: none; }
+.particle { position: absolute; width: 7px; height: 12px; border-radius: 2px; background: #FFDA82; animation: scatter 1.2s ease-out both; }
+@keyframes reveal-card { 0% { transform: rotateY(-80deg) scale(.96); opacity: .35; } 55% { transform: rotateY(6deg) scale(1); opacity: 1; } 100% { transform: rotateY(0) scale(1); opacity: 1; } }
+@keyframes scatter { 0% { opacity: 0; margin-top: 20px; } 35% { opacity: 1; } 100% { opacity: 0; margin-top: -30px; } }
+@keyframes details-in { from { opacity: 0; transform: translateY(-6rpx); } to { opacity: 1; transform: translateY(0); } }
+@keyframes skeleton-breathe { 50% { opacity: .5; } }
+.poster-canvas { position: fixed; left: -2000px; top: 0; width: 750px; height: 1334px; pointer-events: none; }
+.album-mask { position: fixed; inset: 0; z-index: 50; background: #00000066; display: flex; align-items: flex-end; justify-content: center; }
+.album-dialog { width: 100%; max-width: 900rpx; max-height: 85vh; overflow-y: auto; padding: 40rpx 36rpx; padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); border-radius: 12px 12px 0 0; box-shadow: none; animation: details-in 180ms ease-out; }
+.album-dialog::before { content: ''; display: block; margin: -16rpx auto 32rpx; width: 68rpx; height: 7rpx; border-radius: 8rpx; background: #D1D1D6; }
+.album-dialog .primary { margin-top: 30rpx; }
+.pair-panel { background: #FFD1BC; border-color: #202020; color: #202020; }
+.pair-panel .map-hint, .pair-panel .home-link, .pair-panel .detail-title { color: #505050; }
+.pair-names { display: flex; flex-direction: column; gap: 12rpx; margin: 24rpx 0; font-size: 28rpx; }
+.pair-title { font-size: 44rpx; font-weight: 700; line-height: 1.5; margin: 22rpx 0; overflow-wrap: break-word; }
+.pair-panel .primary { margin-top: 32rpx; }
+@media (max-width: 340px) { .result-brand-actions .screen-home { width: 88px; } }
+@media (prefers-reduced-motion: reduce) { .revealing, .particle, .details-content, .album-dialog, .skeleton { animation: none; } }

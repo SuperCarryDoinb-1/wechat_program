@@ -18,8 +18,8 @@ const root = path.join(__dirname, '..');
 const cloudSettings = { mode: 'cloud', cloudEnvId: 'test', timeoutMs: 10 };
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function pageHarness(page = 'result', options = {}) {
-  const filename = path.join(root, `pages/${page}/${page}.js`);
-  const calls = { routes: [], toasts: [], exports: 0, saves: 0, privacy: [], qualities: [] };
+  const filename = path.join(root, `utils/screens/${page}.js`);
+  const calls = { routes: [], toasts: [], exports: 0, saves: 0, privacy: [], qualities: [], posterRequires: 0 };
   let definition;
   const platform = {
     getStorageSync: () => ({ version: 1, answers: fixtures.types.TEM, requestId: 'test' }),
@@ -30,21 +30,46 @@ function pageHarness(page = 'result', options = {}) {
   };
   const localRequire = createRequire(filename);
   vm.runInNewContext(fs.readFileSync(filename, 'utf8'), {
-    Page: value => { definition = value; }, wx: platform, setTimeout, clearTimeout,
+    module: { set exports(value) { definition = value; } }, wx: platform, setTimeout, clearTimeout,
     require: name => {
       if (name === '../../utils/content-service') return { load: () => new Promise(() => {}) };
-      if (name === '../../utils/poster') return {
+      if (name === '../../utils/poster') { calls.posterRequires++; return {
         exportPoster: async (_platform, _page, _result, pairing, quality) => { calls.exports++; calls.qualities.push({ paired: !!pairing, quality }); if (options.exportError) throw Error('EXPORT'); return 'poster.png'; },
         saveToAlbum: async () => { calls.saves++; if (options.save) return options.save(); }
-      };
+      }; }
       if (page === 'index' && name === '../../utils/friend-service') return { loadFriend: () => options.friend || Promise.resolve(null) };
       return localRequire(name);
     }
   }, { filename });
   const instance = { ...definition, data: JSON.parse(JSON.stringify(definition.data)),
-    setData(update) { assert.ok(!this._disposed); Object.assign(this.data, update); } };
+    setData(update, done) { assert.ok(!this._disposed); Object.assign(this.data, update); if (done) done(); } };
   return { instance, calls, platform };
 }
+
+test('result: poster waits for canvas mount and cancels export after unload', async () => {
+  for (const unload of [false, true]) {
+    const h = pageHarness(), page = h.instance;
+    page.onLoad();
+    assert.equal(h.calls.posterRequires, 0);
+    assert.equal(page.data.savingPoster, false);
+    let mounted;
+    page.setData = function(update, done) {
+      assert.ok(!this._disposed);
+      Object.assign(this.data, update);
+      if (done) mounted = done;
+    };
+    const job = page.savePoster();
+    assert.equal(page.data.savingPoster, true);
+    assert.equal(h.calls.exports, 0);
+    await page.savePoster();
+    if (unload) page.onUnload();
+    mounted();
+    await job;
+    assert.equal(h.calls.exports, unload ? 0 : 1);
+    assert.equal(h.calls.saves, unload ? 0 : 1);
+    if (!unload) { assert.equal(page.data.savingPoster, false); page.onUnload(); }
+  }
+});
 
 test('M5：八类型分享标题、5:4 封面、真实 rid 路径及朋友圈 query', () => {
   for (const code of Object.keys(types)) {

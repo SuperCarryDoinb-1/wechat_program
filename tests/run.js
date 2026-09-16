@@ -8,3 +8,6 @@ require('./m5.test');
 require('./m6.test');
 require('./m7.test');
 require('./architecture.test');
+require('./flow-runtime.test');
+require('./pet.test');
+require('./flow.test');

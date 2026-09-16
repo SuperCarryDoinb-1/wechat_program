@@ -6,8 +6,9 @@ module.exports = {
   stats: [{ value: '12', unit: '道', label: '日常情境' }, { value: '8', unit: '种', label: '风格身份' }, { value: '≈90', unit: '秒', label: '发现另一面' }],
   disclaimer: '仅供娱乐，结果不构成任何评价',
   home: {
-    title: 'AI时代，你是哪一种人？',
-    summary: '12 道题 · 约 90 秒',
+    title: '12道题解锁你的AI身份证',
+    titlePrefix: '12道题解锁你的',
+    titleEmphasis: 'AI身份证',
     badge: '与 AI 共生',
     cardEyebrow: '发现你的 AI 使用风格',
     previewTitle: '你会是哪一型？',

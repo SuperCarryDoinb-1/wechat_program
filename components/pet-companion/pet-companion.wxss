@@ -1,0 +1,8 @@
+@import "../../utils/pet-animation.wxss";
+/* No layout space or full-screen touch shield: only the pet handles touches. */
+:host { display: block; width: 0; height: 0; pointer-events: none; }
+.pet-walker { position: fixed; top: 0; left: 0; z-index: 2147483000; pointer-events: auto; }
+.pet-walker.is-passive { pointer-events: none; }
+.is-passive .pet-breathe { animation-duration: 4s; }
+.pet-body.mood-nod.beat-0 { animation: pet-nod-a .6s ease-in-out 2; }
+.pet-body.mood-nod.beat-1 { animation: pet-nod-b .6s ease-in-out 2; }

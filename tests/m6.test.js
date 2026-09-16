@@ -24,11 +24,11 @@ function harness(relative, platform, overrides = {}) {
   const timers = new Map(); let id=0;
   vm.runInNewContext(fs.readFileSync(file,'utf8'),{
     require: name => Object.prototype.hasOwnProperty.call(overrides,name) ? overrides[name] : local(name),
-    wx:platform,Page:value=>{definition=value;},Component:value=>{definition=value;},
+    wx:platform,module: { set exports(value) { definition = value; } },Component:value=>{definition=value;},
     setTimeout:fn=>{timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)
   });
   return { ...definition, data:JSON.parse(JSON.stringify(definition.data)),
-    setData(value){assert.ok(!this._disposed);Object.assign(this.data,value);},
+    setData(value, done){assert.ok(!this._disposed);Object.assign(this.data,value);if(done)done();},
     tick(){const callbacks=[...timers.values()];timers.clear();callbacks.forEach(fn=>fn());}
   };
 }
@@ -49,15 +49,15 @@ test('M6：A 分享 → B 首页 → 12 题 → 云落库 → 双人卡 → C �
   const a={...calc(fixtures.types.TEM),answers:fixtures.types.TEM,requestId:'A'};
   const aContent=await service.start(a); const invite=sharePayload(a,aContent); const rid=invite.path.split('rid=')[1];
   let carried;
-  const home=harness('pages/index/index.js',db.platform,{'../../utils/navigation':{quiz:(_,value)=>{carried=value;}},'../../utils/friend-service':{loadFriend:async()=>a}});
+  const home=harness('utils/screens/index.js',db.platform,{'../../utils/navigation':{quiz:(_,value)=>{carried=value;}},'../../utils/friend-service':{loadFriend:async()=>a}});
   home.onLoad({rid});home.openQuiz();assert.equal(carried,aContent.rid);
   db.setIdentity('B');
-  const quiz=harness('pages/quiz/quiz.js',db.platform,{'../../utils/content-service':service});quiz.onLoad({fromRid:carried});quiz.onShow();
+  const quiz=harness('utils/screens/quiz.js',db.platform,{'../../utils/content-service':service});quiz.onLoad({fromRid:carried});quiz.onShow();
   fixtures.types.TEA.forEach(option=>{quiz.selectOption({currentTarget:{dataset:{option,questionId:quiz.data.question.id}}});quiz.tick();});
   assert.equal(db.record.fromRid,aContent.rid);assert.equal(db.calls.at(-1),'/pages/result/result');
   const bContent=await service.load(db.record);assert.equal(bContent.pairCode,'TEM');
   assert.equal(db.records.get(bContent.rid).fromRid,aContent.rid);assert.equal(db.records.get(bContent.rid)._openid,'B');
-  const result=harness('pages/result/result.js',db.platform,{'../../utils/content-service':service,'../../utils/pair-result':{loadPair:(p,r,c)=>loadPair(p,r,c,settings)}});
+  const result=harness('utils/screens/result.js',db.platform,{'../../utils/content-service':service,'../../utils/pair-result':{loadPair:(p,r,c)=>loadPair(p,r,c,settings)}});
   result.onLoad();await flush();assert.equal(result.data.pairing.name,'主仆关系');assert.equal(result.data.pairing.friendCode,'TEM');
   const next=result.onShareAppMessage();assert.ok(next.title.includes('主仆关系'));assert.equal(next.path,`/pages/index/index?rid=${bContent.rid}`);
   assert.notEqual(bContent.rid,aContent.rid);
@@ -65,10 +65,10 @@ test('M6：A 分享 → B 首页 → 12 题 → 云落库 → 双人卡 → C �
   result.onUnload();
 });
 test('M6：非法与无邀请不会残留上次 fromRid；首页读取未完成也能携带合法邀请',()=>{
-  const db=cloudFixture();const page=harness('pages/quiz/quiz.js',db.platform,{'../../utils/content-service':{start:async()=>({})}});
+  const db=cloudFixture();const page=harness('utils/screens/quiz.js',db.platform,{'../../utils/content-service':{start:async()=>({})}});
   page.onLoad({fromRid:'old'});assert.equal(page._fromRid,'old');page.onLoad();assert.equal(page._fromRid,'');
   page.onLoad({fromRid:'bad&value'});assert.equal(page._fromRid,'');
-  let rid;const home=harness('pages/index/index.js',db.platform,{'../../utils/navigation':{quiz:(_,value)=>{rid=value;}},'../../utils/friend-service':{loadFriend:()=>new Promise(()=>{})}});
+  let rid;const home=harness('utils/screens/index.js',db.platform,{'../../utils/navigation':{quiz:(_,value)=>{rid=value;}},'../../utils/friend-service':{loadFriend:()=>new Promise(()=>{})}});
   home.onLoad({rid:'valid'});home.openQuiz();assert.equal(rid,'valid');
 });
 test('M6：全部 64 组合，四档与四个特配正确且不泄漏答案',()=>{
@@ -88,12 +88,12 @@ test('M6：失效/删除/类型不一致/本地模拟/断网均降级，不伪�
   assert.equal(await loadPair(db.platform,record,{...content,persisted:false},settings),null);
   assert.equal(await loadPair(db.platform,record,content,{mode:'mock'}),null);
   assert.equal(await loadPair({cloud:{callFunction:async()=>{throw Error('OFFLINE');}}},record,content,settings),null);
-  const page=harness('pages/result/result.js',{...db.platform,getStorageSync:()=>({version:1,answers:fixtures.types.TEA,fromRid:'gone',requestId:'B'})},{'../../utils/content-service':{load:async()=>content},'../../utils/pair-result':{loadPair:async()=>null}});
+  const page=harness('utils/screens/result.js',{...db.platform,getStorageSync:()=>({version:1,answers:fixtures.types.TEA,fromRid:'gone',requestId:'B'})},{'../../utils/content-service':{load:async()=>content},'../../utils/pair-result':{loadPair:async()=>null}});
   page.onLoad();await flush();assert.equal(page.data.pairing,null);assert.ok(page.data.result);assert.ok(page.data.pairNote);assert.equal(page.data.pairLoading,false);
   assert.ok(!page.onShareAppMessage().title.includes('配不配'));page.onUnload();
 });
 test('M6：配对请求晚到且页面退出，不写入 UI',async()=>{
-  let finish;const db=cloudFixture();const page=harness('pages/result/result.js',{...db.platform,getStorageSync:()=>({version:1,answers:fixtures.types.TEA,fromRid:'valid',requestId:'B'})},{'../../utils/content-service':{load:async()=>({})},'../../utils/pair-result':{loadPair:()=>new Promise(resolve=>{finish=resolve;})}});
+  let finish;const db=cloudFixture();const page=harness('utils/screens/result.js',{...db.platform,getStorageSync:()=>({version:1,answers:fixtures.types.TEA,fromRid:'valid',requestId:'B'})},{'../../utils/content-service':{load:async()=>({})},'../../utils/pair-result':{loadPair:()=>new Promise(resolve=>{finish=resolve;})}});
   page.onLoad();await flush();page.onUnload();finish(buildPair(calc(fixtures.types.TEA),calc(fixtures.types.TEM)));await flush();assert.equal(page.data.pairing,null);
 });
 test('M6：双点连线四角、相同坐标圆环、非法坐标降级',()=>{
@@ -117,7 +117,7 @@ test('M6：64 种双人海报文字不截断、无重叠，包含朋友与自己
 });
 test('M6：双人/个人海报缓存隔离，保存共用防连点与相册引导',async()=>{
   const db=cloudFixture(),own=calc(fixtures.types.TEA);let exports=[],saves=[];
-  const page=harness('pages/result/result.js',db.platform,{'../../utils/poster':{exportPoster:async(p,pg,r,pairing)=>{exports.push(!!pairing);return pairing?'pair.png':'own.png';},saveToAlbum:async(p,file)=>{saves.push(file);}}});
+  const page=harness('utils/screens/result.js',db.platform,{'../../utils/poster':{exportPoster:async(p,pg,r,pairing)=>{exports.push(!!pairing);return pairing?'pair.png':'own.png';},saveToAlbum:async(p,file)=>{saves.push(file);}}});
   page.data.result=own;page.data.pairing=buildPair(own,calc(fixtures.types.TEM));
   await Promise.all([page.savePairPoster(),page.savePoster()]);assert.deepEqual(exports,[true]);
   await page.savePoster();await page.savePairPoster();assert.deepEqual(exports,[true,false]);assert.deepEqual(saves,['pair.png','own.png','pair.png']);

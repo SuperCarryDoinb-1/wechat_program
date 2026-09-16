@@ -21,7 +21,7 @@ async function exportPoster(platform, page, result, pairing = null, quality = 's
   const height = ultra ? copy.ultraHeight : copy.height;
   const canvas = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(Error('CANVAS_TIMEOUT')), 3000);
-    try { platform.createSelectorQuery().in(page).select('#posterCanvas').fields({ node: true, size: true }).exec(rows => {
+    try { platform.createSelectorQuery().in(page._view || page).select('#posterCanvas').fields({ node: true, size: true }).exec(rows => {
       clearTimeout(timer); rows && rows[0] && rows[0].node ? resolve(rows[0].node) : reject(Error('CANVAS_UNAVAILABLE'));
     }); } catch (error) { clearTimeout(timer); reject(error); }
   });

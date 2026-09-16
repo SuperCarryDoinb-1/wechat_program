@@ -1,7 +1,15 @@
 module.exports = {
-  transitionMs: 200,
+  transitionMs: 120,
   sceneColors: ['#C9B6FF', '#A8C7FA', '#FFE17D', '#FFD1BC', '#BCE8CC', '#F8C4DF'],
-  selectionColors: ['#C9B6FF', '#A8C7FA', '#FFE17D', '#FFD1BC', '#BCE8CC', '#F8C4DF'],
+  // Map the sprite's white fill to each scene color; black and alpha stay intact.
+  runnerFilters: {
+    '#C9B6FF': 'grayscale(1) brightness(0.5) sepia(1) saturate(1.32228) hue-rotate(214.64deg) brightness(1.23446)',
+    '#A8C7FA': 'grayscale(1) brightness(0.5) sepia(1) saturate(1.21705) hue-rotate(178.48deg) brightness(1.26529)',
+    '#FFE17D': 'grayscale(1) brightness(0.5) sepia(1) saturate(1.81839) hue-rotate(8.72deg) brightness(1.44678)',
+    '#FFD1BC': 'grayscale(1) brightness(0.5) sepia(1) saturate(0.86257) hue-rotate(333.79deg) brightness(1.40215)',
+    '#BCE8CC': 'grayscale(1) brightness(0.5) sepia(1) saturate(0.65140) hue-rotate(88.97deg) brightness(1.42375)',
+    '#F8C4DF': 'grayscale(1) brightness(0.5) sepia(1) saturate(0.77801) hue-rotate(276.23deg) brightness(1.34877)'
+  },
   // 只保存最近一次完整结果，不存答题草稿或历史列表。
   resultStorageKey: 'aiti:current-result:v1',
   resultVersion: 1,

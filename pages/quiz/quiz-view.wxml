@@ -1,0 +1,42 @@
+<view class="page quiz-page" wx:if="{{question}}">
+  <view class="quiz-header quiz-heading">
+    <button class="screen-home pressable" hover-class="button-pressed" bindtap="goHome" aria-label="返回首页">‹ 返回首页</button>
+    <view class="quiz-pet" style="height: {{petSize || 104}}px;">
+      <view class="quiz-pet-motion {{petFloating ? 'is-roaming' : ''}} {{petMotionReady ? 'is-moving' : ''}} {{petDragging ? 'is-dragging' : ''}}" style="width: {{petSize || 104}}px; height: {{petSize || 104}}px; {{petFloating ? 'transform: translate3d(' + petX + 'px, ' + petY + 'px, 0);' : ''}}" bindtouchstart="petTouchStart" catchtouchmove="petTouchMove" bindtouchend="petTouchEnd" bindtouchcancel="petTouchCancel" catchtap="tapPet">
+        <view class="pet-facing" style="transform: scaleX({{petFacing || 1}});">
+          <view class="pet-breathe">
+          <view class="pet-body mood-{{petMood || 'idle'}} beat-{{petBeat}}" role="button" aria-label="点击与小宠物互动，可以拖动">
+            <image class="quiz-pet-image pet-image" src="{{petImage || '/assets/pet/03-glossy-jelly-pink.png'}}" style="width: {{petSize || 104}}px; height: {{petSize || 104}}px;" mode="aspectFit" />
+          </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="progress-heading"><text>{{copy.quiz.countPrefix}} <text class="current-number">{{number}}</text> / {{total}}</text></view>
+  </view>
+  <view class="quiz-progress">
+    <view class="progress-runner {{progress === 100 ? 'is-finished' : ''}}" style="left: {{progress}}%; transform: translateX(-{{progress}}%);" aria-hidden="true">
+      <image class="runner-figure" src="/assets/quiz/human-runner-cutout.png" style="filter: {{runnerFilters[sceneColor] || 'none'}}; -webkit-filter: {{runnerFilters[sceneColor] || 'none'}};" mode="scaleToFill" aria-hidden="true" />
+    </view>
+    <view class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="{{total}}" aria-valuenow="{{answered}}"><view class="progress-fill" style="width: {{progress}}%;"></view></view>
+  </view>
+  <view class="question-stage">
+  <view class="scene-card" style="color: #202020; background-color: {{sceneColor}};">
+    <view class="scene-visual">
+    <image wx:if="{{image}}" class="scene-image" src="{{image}}" mode="aspectFit" binderror="imageFailed" data-question-id="{{question.id}}" />
+    <view wx:else class="scene-art motif-{{scene.motif}}" aria-hidden="true"><view class="art-orbit"></view><view class="art-body"><view class="art-line line-one"></view><view class="art-line line-two"></view><view class="art-dot"></view></view><view class="art-star"></view></view>
+    </view>
+    <text class="question-title">{{question.title}}</text>
+  </view>
+  <view class="options">
+    <button wx:for="{{question.options}}" wx:key="label" class="option {{selected === index ? 'option-selected' : ''}}" style="{{selected === index ? 'background-color: ' + sceneColor + ';' : ''}}" hover-class="button-pressed" bindtap="selectOption" data-option="{{index}}" data-question-id="{{question.id}}" disabled="{{transitioning || submitting}}" aria-pressed="{{selected === index}}">
+      <view class="option-label" aria-hidden="true">{{selected === index ? '✓' : item.label}}</view><view class="option-text">{{item.text}}</view>
+    </button>
+  </view>
+  </view>
+  <view wx:if="{{submitError}}" class="submit-error" aria-live="polite"><view>{{submitError}}</view><button class="secondary" bindtap="retryFinish" disabled="{{submitting}}">{{copy.quiz.retry}}</button></view>
+  <view class="quiz-bottom">
+    <button class="quiz-nav previous" hover-class="button-pressed" bindtap="previousQuestion" disabled="{{index === 0 || submitting}}">{{copy.quiz.previous}}</button>
+    <button class="quiz-nav next" hover-class="button-pressed" bindtap="nextQuestion" data-question-id="{{question.id}}" disabled="{{selected < 0 || transitioning || submitting}}" loading="{{submitting}}">{{index === total - 1 ? copy.quiz.finish : copy.quiz.next}}</button>
+  </view>
+</view>

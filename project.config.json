@@ -27,8 +27,18 @@
       "outputPath": ""
     }
   },
+  "watchOptions": {
+    "ignore": ["tmp/**", "output/**", "tests/**", "docs/**", ".git/**", ".agents/**", ".codex/**", "utils/scoring.test.js"]
+  },
   "packOptions": {
     "ignore": [
+      { "value": "AI.png", "type": "file" },
+      { "value": "human.png", "type": "file" },
+      { "value": "assets/quiz/ai-runner.png", "type": "file" },
+      { "value": "assets/quiz/human-runner.png", "type": "file" },
+      { "value": "assets/pet/03-glossy-jelly-v4.png", "type": "file" },
+      { "value": "tmp", "type": "folder" },
+      { "value": "output", "type": "folder" },
       { "value": "aiti_prd.md", "type": "file" },
       { "value": "aiti_prd_brief.md", "type": "file" },
       { "value": "not_complate_list.txt", "type": "file" },

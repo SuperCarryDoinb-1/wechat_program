@@ -1,6 +1,6 @@
 const env = require('../config/env');
 const limits = require('../config/content');
-const quizConfig = require('../config/quiz');
+const resultStore = require('./result-store');
 const types = require('../config/types');
 const { validateContent } = require('./content-validation');
 const { validRid } = require('./public-result');
@@ -10,13 +10,7 @@ function createContentService(platform, settings = env, timers = { setTimeout, c
   const fallback = (record, source) => ({ code: record.code, rid: '', persisted: false, source,
     roast: types[record.code].roastFallback, tips: types[record.code].tipsFallback.slice() });
   function save(record, content) {
-    try {
-      const latest = platform.getStorageSync(quizConfig.resultStorageKey);
-      if (latest && latest.requestId === record.requestId) {
-        platform.setStorageSync(quizConfig.resultStorageKey, { ...latest, content });
-      }
-    } catch (_) { /* 本地缓存写入失败不影响本次展示。 */ }
-    return content;
+    return resultStore.saveContent(platform, record, content);
   }
   function checked(value, record) {
     const content = validateContent(value);

@@ -1,0 +1,48 @@
+<view class="page result-page">
+  <view class="brand-row"><view class="result-brand-actions"><button class="screen-home pressable" hover-class="button-pressed" bindtap="goHome" aria-label="返回首页">‹ 返回首页</button></view><text class="pill">{{copy.result.badge}}</text></view>
+  <view wx:if="{{invitation}}" class="empty-result panel"><text class="title">{{copy.title}}</text><view class="subtitle">{{copy.subtitle}}</view><view class="map-hint">{{sharingCopy.timelineHint}}</view></view>
+  <block wx:elif="{{result}}">
+    <view class="reveal-status" wx:if="{{revealing}}"><text>{{copy.result.reveal}}</text><button bindtap="skipReveal" class="skip">{{copy.result.skip}}</button></view>
+    <view class="card-wrap {{revealing ? 'revealing' : ''}}">
+      <type-card type-code="{{result.code}}" />
+      <view class="particles" wx:if="{{revealing}}" aria-hidden="true"><view wx:for="{{particles}}" wx:key="x" class="particle" style="left: {{item.x}}%; top: {{item.y}}%; transform: rotate({{item.angle}}deg);"></view></view>
+    </view>
+    <view class="section panel roast-panel"><view class="section-heading"><text>{{copy.result.roast}}</text><text class="small-label">{{contentLoading ? copy.result.aiLoading : contentLabel}}</text></view><view wx:if="{{contentLoading}}" class="skeletons" aria-label="{{copy.result.aiLoading}}"><view class="skeleton"></view><view class="skeleton short"></view></view><view wx:else class="roast-content">{{content.roast}}</view><view wx:if="{{contentNote}}" class="pending-label">{{contentNote}}</view></view>
+    <view class="section panel"><view class="section-heading"><text>{{copy.result.tips}}</text></view><view wx:if="{{contentLoading}}" class="skeletons" aria-label="{{copy.result.aiLoading}}"><view class="skeleton"></view><view class="skeleton"></view><view class="skeleton short"></view></view><view wx:else class="tips-content"><view wx:for="{{content.tips}}" wx:key="*this" class="tip-row"><text class="tip-number">{{index + 1}}</text><text>{{item}}</text></view></view></view>
+    <view class="section panel"><view class="section-heading"><text>{{copy.result.mapTitle}}</text></view><quadrant-map coords="{{result.coords}}" accent="{{type.color}}" /><view class="lead-badge">{{leadLabel}}</view></view>
+    <view class="section panel details-panel">
+      <button class="details-toggle" bindtap="toggleDetails" aria-expanded="{{detailsOpen}}"><text>{{copy.result.details}}</text><text class="toggle-label">{{detailsOpen ? copy.result.collapse : copy.result.expand}} {{detailsOpen ? '−' : '+'}}</text></button>
+      <view wx:if="{{detailsOpen}}" class="details-content">
+        <view class="detail-title">{{copy.result.pros}}</view><view wx:for="{{type.pros}}" wx:key="*this" class="detail-line">{{item}}</view>
+        <view class="detail-title">{{copy.result.cons}}</view><view wx:for="{{type.cons}}" wx:key="*this" class="detail-line">{{item}}</view>
+        <view class="detail-title">{{copy.result.scene}}</view><view class="scene-quote">{{type.scene}}</view>
+        <view class="relation"><text class="relation-label">{{copy.result.best}}</text><view>{{relations.best.name}}<view wx:if="{{relations.best.reason}}" class="reason">{{relations.best.reason}}</view></view></view>
+        <view class="relation"><text class="relation-label">{{copy.result.worst}}</text><view>{{relations.worst.name}}<view wx:if="{{relations.worst.reason}}" class="reason">{{relations.worst.reason}}</view></view></view>
+        <view class="detail-title">{{copy.result.chain}}</view>
+        <view class="relation"><text class="relation-label">{{copy.result.looksDownOn}}</text><view>{{relations.looksDownOn.name}}<view wx:if="{{relations.looksDownOn.reason}}" class="reason">{{relations.looksDownOn.reason}}</view></view></view>
+        <view class="relation"><text class="relation-label">{{copy.result.lookedDownBy}}</text><view>{{relations.lookedDownBy.name}}<view wx:if="{{relations.lookedDownBy.reason}}" class="reason">{{relations.lookedDownBy.reason}}</view></view></view>
+      </view>
+    </view>
+    <view wx:if="{{pairLoading || pairNote}}" class="section panel map-hint">{{pairLoading ? pairCopy.loading : pairNote}}</view>
+    <view wx:if="{{pairing}}" class="section panel pair-panel">
+      <view class="section-heading">{{pairCopy.title}}</view>
+      <view class="pair-names"><text >{{pairCopy.you}} · {{type.name}}</text><text >{{pairCopy.friend}} · {{pairing.friendName}}</text></view>
+      <view class="pair-title">{{pairing.name}}</view><view class="map-hint">{{pairing.text}}</view>
+      <view class="detail-title">{{pairCopy.map}}</view><quadrant-map coords="{{result.coords}}" accent="{{type.color}}" friend-coords="{{pairing.friendCoords}}" friend-accent="{{pairing.friendColor}}" />
+      <button class="primary pressable" hover-class="button-pressed" bindtap="savePairPoster" loading="{{savingPoster}}" disabled="{{savingPoster}}">{{pairCopy.save}}</button>
+      <button class="home-link" open-type="share">{{pairCopy.share}}</button>
+    </view>
+    <view class="footer">{{copy.disclaimer}}</view>
+    <view wx:if="{{shareNote}}" class="pending-label">{{shareNote}}</view>
+    <canvas wx:if="{{savingPoster}}" type="2d" id="posterCanvas" class="poster-canvas" aria-hidden="true"></canvas>
+    <view class="action-bar"><view class="action-inner"><button class="action-primary pressable" hover-class="button-pressed" bindtap="savePoster" loading="{{savingPoster}}" disabled="{{savingPoster}}">{{savingPoster ? sharingCopy.saving : copy.result.save}}</button><button class="action-secondary pressable" hover-class="button-pressed" open-type="share">{{copy.result.share}}</button><button class="action-restart pressable" hover-class="button-pressed" bindtap="restart">{{copy.result.restart}}</button></view></view>
+  </block>
+  <view wx:else class="empty-result"><view class="placeholder panel"><text class="title">{{copy.result.emptyTitle}}</text><view class="subtitle">{{copy.result.emptyText}}</view></view><button class="primary pressable" hover-class="button-pressed" bindtap="restart">{{copy.home.action}}</button><button class="home-link" bindtap="goHome">{{copy.result.action}}</button></view>
+</view>
+<view wx:if="{{albumDenied}}" class="album-mask">
+  <view class="album-dialog panel"><view class="section-heading">{{sharingCopy.albumTitle}}</view><view class="map-hint">{{sharingCopy.albumText}}</view><button class="primary pressable" hover-class="button-pressed" open-type="openSetting" bindopensetting="albumSettingsChanged">{{sharingCopy.settings}}</button><button class="home-link" bindtap="closeAlbumGuide">{{sharingCopy.close}}</button></view>
+</view>
+<view wx:if="{{privacyVisible}}" class="album-mask">
+  <view class="album-dialog panel"><view class="section-heading">{{sharingCopy.privacyTitle}}</view><view class="map-hint">{{sharingCopy.privacyText}}</view><button class="home-link" bindtap="readPrivacy">{{sharingCopy.privacyRead}}</button><button id="poster-privacy-agree" class="primary pressable" hover-class="button-pressed" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreePrivacy">{{sharingCopy.privacyAgree}}</button><button class="home-link" bindtap="refusePrivacy">{{sharingCopy.close}}</button></view>
+</view>
+<pet-companion wx:if="{{!invitation}}" scene="result" />

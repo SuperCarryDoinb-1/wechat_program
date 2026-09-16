@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const { createHandler } = require('../cloudfunctions/ping/handler');
 
-test('三个页面注册、文件、事件绑定及首页/返回路由', () => {
+test('三个路由入口注册同一流程容器，所有视图事件存在', () => {
   const app = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8'));
   assert.equal(app.pages.length, 3);
   const calls = [];
@@ -21,14 +21,12 @@ test('三个页面注册、文件、事件绑定及首页/返回路由', () => {
     let page;
     global.Page = definition => { page = definition; };
     require(path.join(root, `${route}.js`));
-    const wxml = fs.readFileSync(path.join(root, `${route}.wxml`), 'utf8');
+    const wxml = [`${route}.wxml`, 'utils/flow-view.wxml', ...app.pages.map(page => `${page}-view.wxml`)]
+      .map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
     for (const match of wxml.matchAll(/bindtap="(\w+)"/g)) assert.equal(typeof page[match[1]], 'function');
-    if (page.openQuiz) page.openQuiz();
-    if (page.openResult) page.openResult();
-    if (page.goHome) page.goHome();
+    assert.equal(typeof page.changeScreen, 'function');
   }
-  // 答题到结果的完整跳转由 M2 页面行为测试覆盖。
-  assert.deepEqual(calls, ['/pages/quiz/quiz', '/pages/index/index']);
+  assert.deepEqual(calls, []);
   delete global.Page;
   delete global.wx;
 });

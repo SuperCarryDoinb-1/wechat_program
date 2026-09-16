@@ -235,11 +235,11 @@ test('M4：兼容 API 使用 HTTPS/服务端密钥，校验状态、截断及响
 test('M4：结果页面结束骨架并标记来源，卸载后不更新，失败使用预设', async () => {
   for(const scenario of ['success','unloaded','failure']){
     let definition,resolve,reject;
-    const filename=path.join(__dirname,'../pages/result/result.js');const localRequire=createRequire(filename);
+    const filename=path.join(__dirname,'../utils/screens/result.js');const localRequire=createRequire(filename);
     const job=new Promise((yes,no)=>{resolve=yes;reject=no;});
     const record={version:1,requestId:'page-id',...event('TEM')};
     vm.runInNewContext(fs.readFileSync(filename,'utf8'),{
-      Page(value){definition=value;},require(name){return name==='../../utils/content-service'?{load:()=>job}:localRequire(name);},
+      module: { set exports(value) { definition = value; } },require(name){return name==='../../utils/content-service'?{load:()=>job}:localRequire(name);},
       wx:{getStorageSync:()=>record},setTimeout,clearTimeout
     });
     const page={...definition,data:clone(definition.data),setData(update){assert.ok(!this._disposed);Object.assign(this.data,clone(update));}};

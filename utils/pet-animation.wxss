@@ -1,0 +1,22 @@
+.pet-facing, .pet-breathe, .pet-body, .pet-image { width: 100%; height: 100%; }
+.is-moving { transition: transform 80ms linear; }
+.is-dragging { transition: none; }
+.is-suspended { pointer-events: none; }
+.pet-facing { position: relative; transition: transform 180ms ease-in-out; }
+.pet-breathe { animation: pet-breathe 2.8s ease-in-out infinite; }
+.pet-body { position: relative; transform-origin: 50% 80%; }
+.pet-image { display: block; }
+.pet-body.mood-happy.beat-0 { animation: pet-cheer-a .6s ease-in-out 2; }
+.pet-body.mood-happy.beat-1 { animation: pet-cheer-b .6s ease-in-out 2; }
+.pet-body.mood-wave.beat-0 { animation: pet-wave-a .6s ease-in-out 2; }
+.pet-body.mood-wave.beat-1 { animation: pet-wave-b .6s ease-in-out 2; }
+.is-paused { visibility: hidden; }
+.is-paused .pet-body, .is-paused .pet-breathe { animation-play-state: paused; }
+@keyframes pet-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.025, .98); } }
+@keyframes pet-cheer-a { 0%, 100% { transform: translateY(0) rotate(0) scale(1); } 45% { transform: translateY(-12px) rotate(8deg) scale(.96, 1.04); } }
+@keyframes pet-cheer-b { 0%, 100% { transform: translateY(0) scale(1) rotate(0); } 45% { transform: translateY(-12px) rotate(-8deg) scale(.96, 1.04); } }
+@keyframes pet-wave-a { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-9deg); } 65% { transform: rotate(9deg); } }
+@keyframes pet-wave-b { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-9deg); } 65% { transform: rotate(9deg); } }
+@keyframes pet-nod-a { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025, .975); } }
+@keyframes pet-nod-b { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025, .975); } }
+@media (prefers-reduced-motion: reduce) { .pet-body, .pet-breathe { animation: none !important; } .pet-facing, .is-moving { transition: none; } }

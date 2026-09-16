@@ -1,0 +1,3 @@
+<template name="index"><include src="../pages/index/index-view.wxml" /></template>
+<template name="quiz"><include src="../pages/quiz/quiz-view.wxml" /></template>
+<template name="result"><include src="../pages/result/result-view.wxml" /></template>

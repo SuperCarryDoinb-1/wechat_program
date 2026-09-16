@@ -27,7 +27,7 @@ function load(relative, stored, readFails = false) {
     require(name) {
       if (name === '../../utils/content-service') return { load: () => new Promise(() => {}) };
       return instanceRequire(name);
-    }, Page(value) { definition = value; }, Component(value) { definition = value; }, wx,
+    }, module: { set exports(value) { definition = value; } }, Component(value) { definition = value; }, wx,
     setTimeout(callback, delay) { assert.equal(delay, 1200); const id = ++nextTimer; timers.set(id, callback); return id; },
     clearTimeout(id) { timers.delete(id); }
   }, { filename });
@@ -37,7 +37,7 @@ function load(relative, stored, readFails = false) {
   return { instance, definition, timers, tick, calls, state };
 }
 function resultPage(code = 'TEM') {
-  const h = load('pages/result/result.js', { version: 1, answers: fixtures.types[code], ...calc(fixtures.types[code]) });
+  const h = load('utils/screens/result.js', { version: 1, answers: fixtures.types[code], ...calc(fixtures.types[code]) });
   h.instance.onLoad(); return h;
 }
 
@@ -56,17 +56,17 @@ test('M3：8 类真实答案到结果页，名称/颜色/稀有度/坐标/详情
 test('M3：缺失、损坏、版本不支持和读取失败展示空态', () => {
   [undefined, null, '', {}, { version: 99, answers: fixtures.types.TEM },
     { version: 1, answers: [] }, { version: 1, answers: Array(12).fill(9) }].forEach(stored => {
-    const { instance, timers } = load('pages/result/result.js', stored);
+    const { instance, timers } = load('utils/screens/result.js', stored);
     instance.onLoad(); instance.onReady();
     assert.equal(instance.data.result, null);
     assert.equal(timers.size, 0);
   });
-  const { instance } = load('pages/result/result.js', null, true);
+  const { instance } = load('utils/screens/result.js', null, true);
   instance.onLoad(); assert.equal(instance.data.result, null);
 });
 
 test('M3：以真实答案重算，不把错误缓存代码/坐标当结果', () => {
-  const { instance } = load('pages/result/result.js', { version: 1, answers: fixtures.types.TEA, code: 'TEM', coords: {x:99,y:99} });
+  const { instance } = load('utils/screens/result.js', { version: 1, answers: fixtures.types.TEA, code: 'TEM', coords: {x:99,y:99} });
   instance.onLoad();
   assert.deepEqual(instance.data.result, calc(fixtures.types.TEA));
 });
@@ -141,8 +141,9 @@ test('M3：组件注册、WXML 事件绑定与配置引用完整', () => {
     assert.equal(JSON.parse(fs.readFileSync(`${base}.json`,'utf8')).component,true);
   });
   for (const relative of ['pages/result/result','components/type-card/type-card','components/quadrant-map/quadrant-map']) {
-    const h = load(`${relative}.js`);
-    const wxml = fs.readFileSync(path.join(__dirname,'..',`${relative}.wxml`),'utf8');
+    const isPage = relative.startsWith('pages/');
+    const h = load(isPage ? 'utils/screens/result.js' : `${relative}.js`);
+    const wxml = fs.readFileSync(path.join(__dirname,'..',`${relative}${isPage ? '-view' : ''}.wxml`),'utf8');
     for (const match of wxml.matchAll(/bind(?:tap|error)="(\w+)"/g)) assert.equal(typeof h.instance[match[1]],'function');
   }
 });
