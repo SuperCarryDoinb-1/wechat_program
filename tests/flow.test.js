@@ -35,6 +35,7 @@ function harness(entry = 'index', options = {}) {
   function load(relative) {
     if (relative === 'utils/content-service.js' && options.contentService) return options.contentService;
     if (relative === 'utils/friend-service.js' && options.friendService) return options.friendService;
+    if (relative === 'utils/history-service.js' && options.historyService) return options.historyService;
     if (relative === 'utils/poster.js') return {
       async exportPoster(_wx, controller) { assert.equal(controller._view, page); calls.exports++; return 'poster.png'; },
       async saveToAlbum() { calls.saves++; }
@@ -82,6 +83,46 @@ function harness(entry = 'index', options = {}) {
   return { page, calls, timers, callbacks, commits, mount, tick, choose, complete, get record() { return record; } };
 }
 
+test('home: previews rotate every eight seconds without overlap, cover all types and stop when hidden or exited', () => {
+  const h = harness();
+  const codes = () => Array.from(h.page.data.screen.typePreviews, item => item.code);
+  let previous = codes(); const seen = new Set(previous);
+  h.tick(7999); assert.deepEqual(codes(), previous);
+  h.tick(1);
+  for (let round = 0; round < 8; round++) {
+    const current = codes();
+    assert.equal(current.length, 3); assert.equal(new Set(current).size, 3);
+    assert.ok(current.every(code => !previous.includes(code)));
+    current.forEach(code => seen.add(code)); previous = current; h.tick(8000);
+  }
+  assert.equal(seen.size, 8);
+  const paused = codes(); h.page.onHide(); h.tick(24000); assert.deepEqual(codes(), paused);
+  h.page.onShow(); h.mount(); h.page.onShow(); h.mount();
+  h.tick(7999); assert.deepEqual(codes(), paused);
+  h.tick(1); assert.ok(codes().every(code => !paused.includes(code)));
+  h.page.openQuiz(); h.mount(); h.tick(16000); assert.equal(h.page.data.stage, 'quiz');
+  h.page.onUnload(); assert.equal(h.timers.size, 0);
+});
+
+test('flow: history opens from home, returns and preserves friend context without leaking the current result', async () => {
+  const h = harness('index', { query: { rid: 'friend-1' },
+    friendService: { loadFriend: async () => null }, historyService: { loadHistory: async () => [] } });
+  h.page.openHistory(); h.mount(); await flush(); h.mount();
+  assert.equal(h.page.data.stage, 'history');
+  assert.equal(h.page.data.screen.loading, false);
+  assert.equal(h.page.data.screen.records.length, 0);
+  assert.equal(h.page.onShareAppMessage().path, '/pages/index/index?invite=1');
+  h.page.historyHome(); h.mount();
+  assert.equal(h.page.data.stage, 'index');
+  assert.equal(h.page._screen._fromRid, 'friend-1');
+  h.page.openHistory(); h.mount();
+  h.page.historyStart(); h.mount();
+  assert.equal(h.page.data.stage, 'quiz');
+  assert.equal(h.page._screen._fromRid, 'friend-1');
+  assert.equal(h.calls.writes, 0);
+  h.page.onUnload();
+});
+
 test('flow: start, all answers, result, retry and home use one page with fresh state', async () => {
   const h = harness(), page = h.page;
   assert.equal(page.data.stage, 'index');
@@ -91,7 +132,7 @@ test('flow: start, all answers, result, retry and home use one page with fresh s
   assert.equal(page.data.screen.number, 1);
   assert.equal(page.data.screen.petImage, pet.image);
   assert.equal(page.onShareAppMessage().path, '/pages/index/index?invite=1');
-  page.tapPet(); assert.notEqual(page.data.screen.petMood, 'idle');
+  page.tapPet(); h.tick(280); assert.equal(page.data.screen.petMood, 'idle'); assert.ok(page.data.screen.petHue > 0);
   h.complete(); await flush(); h.mount();
   assert.equal(page.data.stage, 'result');
   assert.ok(page.data.screen.result.code);
@@ -140,8 +181,10 @@ test('flow: hidden quiz pauses pending answer; old callbacks cannot revive a dep
   const snapshot = clone(page.data);
   timerCallbacks.forEach(fn => fn()); old.setData({ petMood: 'jump', index: 9 });
   assert.deepEqual(page.data, snapshot);
-  assert.equal(h.timers.size, 0);
+  assert.equal(h.timers.size, 1); // The active home owns only its preview rotation timer.
+  assert.ok(h.timers.has(page._screen._previewTimer));
   page.onUnload(); h.tick(5000);
+  assert.equal(h.timers.size, 0);
 });
 
 test('flow: content resolving before view mount is not lost; late results cannot overwrite home', async () => {

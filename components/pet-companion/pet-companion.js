@@ -10,6 +10,7 @@ Component({
     suspended: { type: Boolean, value: false }
   },
   data: {
+    hue: 0, rainbow: false, performing: '', trail: [], trailFading: false, bubble: '', bubbleBelow: false,
     image: config.image, size: config.size, x: 0, y: 0, active: true,
     dragging: false, motionReady: false, motionSuspended: false,
     positioned: false, available: false, confirmed: false, passive: false, mood: 'idle', beat: 0, facing: 1, imageFailed: false
@@ -108,6 +109,7 @@ Component({
     updateBounds() {
       if (!this._width || !this._height) return;
       if (this.properties.suspended && this.data.positioned && !this.data.passive) {
+        this.clearTimer('tap'); this.stopPerformance();
         this.clearTimer('motion');
         this.touchCancel();
         this.clearTimer('motion');

@@ -1,8 +1,13 @@
-<view wx:if="{{positioned && available && !imageFailed}}" class="pet-walker {{!active ? 'is-paused' : ''}} {{passive ? 'is-passive' : ''}} {{motionReady ? 'is-moving' : ''}} {{dragging ? 'is-dragging' : ''}} {{motionSuspended ? 'is-suspended' : ''}}" style="width: {{size}}px; height: {{size}}px; opacity: {{passive && !confirmed ? 0 : 1}}; transform: translate3d({{x}}px, {{y}}px, 0);" bindtouchstart="touchStart" catchtouchmove="touchMove" bindtouchend="touchEnd" bindtouchcancel="touchCancel">
+<view wx:if="{{active && available && trail.length}}" class="pet-trail {{trailFading ? 'is-fading' : ''}}" aria-hidden="true">
+  <view wx:for="{{trail}}" wx:key="id" class="pet-trail-segment" style="left: {{item.x}}px; top: {{item.y}}px; width: {{item.length}}px; transform: rotate({{item.angle}}deg); background: linear-gradient(90deg, hsl({{item.hue}}, 100%, 68%), hsl({{item.hue + 35}}, 100%, 72%)); color: hsl({{item.hue}}, 100%, 70%);" />
+</view>
+<view wx:if="{{positioned && available && !imageFailed}}" class="pet-walker action-{{performing}} {{!active ? 'is-paused' : ''}} {{passive ? 'is-passive' : ''}} {{motionReady ? 'is-moving' : ''}} {{dragging ? 'is-dragging' : ''}} {{motionSuspended ? 'is-suspended' : ''}}" style="width: {{size}}px; height: {{size}}px; opacity: {{passive && !confirmed ? 0 : 1}}; transform: translate3d({{x}}px, {{y}}px, 0);" bindtouchstart="touchStart" catchtouchmove="touchMove" bindtouchend="touchEnd" bindtouchcancel="touchCancel">
+  <view wx:if="{{bubble}}" class="pet-bubble {{bubbleBelow ? 'is-below' : ''}}">{{bubble}}</view>
   <view class="pet-facing" style="transform: scaleX({{facing}});">
     <view class="pet-breathe">
     <view class="pet-body mood-{{mood}} beat-{{beat}}" role="{{passive ? 'img' : 'button'}}" aria-label="{{passive ? '陪伴答题的小宠物' : '点击与小宠物互动，可以向任意方向拖动'}}" catchtap="tapPet">
-      <image class="pet-image" src="{{image}}" mode="aspectFit" bindload="onImageLoad" binderror="onImageError" />
+      <image class="pet-image" style="filter: hue-rotate({{hue}}deg);" src="{{image}}" mode="aspectFit" bindload="onImageLoad" binderror="onImageError" />
+      <view wx:if="{{rainbow}}" class="pet-rainbow" />
     </view>
     </view>
   </view>

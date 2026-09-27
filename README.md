@@ -1,6 +1,6 @@
 # AITI · AI 使用风格测试
 
-当前阶段：**M7 本地准备完成，尚未具备提审条件**。用户已确认云开发尚未开通；当前仍为本地模拟模式。代码已包含个人测试、海报、云解读和双人配对流程，但真实云/模型、六轮真机、实际包体与首屏耗时待验收。详见 [提审清单](docs/提审清单.md)、[首次开通云开发](docs/首次开通云开发.md) 和 [答辩要点](docs/答辩要点.md)。
+部署版使用**微信云开发**（本仓库默认使用 mock 模式），AppID 为 `YOUR_WECHAT_APPID`。小程序通过 `wx.cloud.callFunction` 调用云函数，由云函数读写云数据库；无需自建服务器、服务器域名或配置 request 合法域名。尚需填写新 AppID 关联的实际云环境 ID、创建集合并部署云函数，详见 [首次开通云开发](docs/首次开通云开发.md)。未配置环境或云端不可用时保留离线答题与海报，无法保存云端结果或读取好友结果。真实云/模型、真机、实际包体与首屏耗时仍待验收，尚未具备提审条件，详见 [提审清单](docs/提审清单.md)。
 
 ## 本地预览
 
@@ -8,20 +8,20 @@
 
 2026-09-12 完成三页、两组件及分享物料的视觉改版，见 [UI 设计说明](docs/UI设计说明.md)。可直接用浏览器打开 [视觉校样](docs/ui-preview.html) 切换宽度、题目与身份；它展示实际模板的浏览器排版，真实交互请在微信开发者工具中编译体验。
 
-1. 在微信开发者工具中导入本目录，项目类型选择小程序。`project.config.json` 已保留用户填写的 AppID；更换账号时使用自己的小程序 AppID 或工具提供的测试号。
-2. `config/env.js` 默认 `mode: 'mock'`，无需密钥或安装依赖即可预览。工具选择可用的稳定基础库版本。
+1. 在微信开发者工具中导入本目录，项目类型选择小程序。`project.config.json` 已设置 AppID `YOUR_WECHAT_APPID`，使用有该小程序开发权限的微信账号登录。
+2. `config/env.js` 默认 `mode: 'mock'`；接入自己的云环境时改为 `mode: 'cloud'`，填写 `cloudEnvId` 并完成下方部署后即可使用云端功能。若只需本地示例，可临时改为 `mode: 'mock'`；该模式不保存云端结果。工具选择可用的稳定基础库版本。
 3. 首页点击「开始测试」，每题选择后约 200ms 自动切换下一题，最后一题选择后自动进入结果页；查看人设、坐标并展开详情，底部可保存海报、分享给好友或重新测试。相册保存请使用真机预览。
 4. 开发诊断默认关闭。需要检查时临时将 `config/env.js` 的 `showDiagnostics` 设为 `true` 并重新编译，首页会显示「检查 ping 与数据库」；模拟模式的成功不代表真实云已连通，验收后关闭开关。
 
 ## 配置真实云开发
 
-1. 将 `project.config.json` 的 `appid` 改为自己的小程序 AppID。在微信开发者工具中打开「云开发」，按控制台流程开通环境，取得环境 ID。游客模式不能作为真实云联调凭据。
+1. 确认开发者工具中的 AppID 为 `YOUR_WECHAT_APPID`。打开「云开发」，开通或选择与该 AppID 关联的环境，取得环境 ID；旧 AppID 的环境不能直接假定可用。游客模式不能作为真实云联调凭据。
 2. 在云开发数据库控制台**手动新建 `results` 集合**。将该集合的自定义安全规则设置为 `cloudfunctions/database.rules.json` 的内容（客户端禁止直接读写，后续通过云函数返回允许公开的字段）。该文件不会自动部署规则。
 3. 在 `config/env.js` 设置 `mode: 'cloud'`、`cloudEnvId: '实际环境ID'`。前端只填环境 ID，不放 API key 或云密钥。
-4. 选择该云环境，右键 `cloudfunctions/ping` →「上传并部署：云端安装依赖」。依赖只需在云端安装，不要求本机执行 npm install。
+4. 运行 `node tests/sync-cloud.js` 同步云函数共享代码。选择该云环境，分别右键 `cloudfunctions/ping`、`cloudfunctions/genContent`、`cloudfunctions/getResult`、`cloudfunctions/getHistory` →「上传并部署：云端安装依赖」。将 `genContent` 超时设为至少 15 秒。依赖只需在云端安装，不要求本机执行 npm install；详见 [M4 部署步骤](docs/M4-deploy.md)。不配置模型时，云函数仍会真实保存结果并返回示例文案，可先验证好友分享。首页“历史数据”展示当前微信账号最新五条云端测评，支持展开详情；配置与验收见 [历史记录说明](docs/history-deploy.md)。
 5. 首先用云端测试调用 `ping`，入参 `{}`，预期 `{ "ok": true, "message": "ok", "database": "unchecked" }`。
 6. 在 `ping` 云函数环境变量中设置 `ENABLE_M0_DIAGNOSTICS=true`，保存配置后执行云端测试，入参 `{ "checkDatabase": true }`。预期 `ok: true`、`database: "ok"`。控制台 `results` 中应出现固定 ID `m0-healthcheck` 的测试记录；重复检查会更新这一条记录，不新增用户结果。
-7. 小程序重新编译后点击首页检查按钮，应显示「真实云端」。若失败，依次检查环境 ID、云函数部署环境、集合是否创建、诊断环境变量。
+7. 临时将 `config/env.js` 的 `showDiagnostics` 设为 `true`，小程序重新编译后点击首页检查按钮，应显示「真实云端」。重新完成一次答题，确认 `results` 中新增结果，并用另一个账号打开分享验证好友结果。若失败，依次检查环境 ID、云函数部署环境、集合是否创建、诊断环境变量。
 8. 验收结束后关闭 `ENABLE_M0_DIAGNOSTICS`。发布前将 `showDiagnostics` 改为 `false`。健康检查记录不是用户测评结果，后续业务读取需排除它。
 
 ## 自测
@@ -102,7 +102,7 @@ M5 验收步骤见 [海报与分享验收](docs/M5-check.md)，实现及待办�
 - `config/`：题库、人设及文案；`copy.js` 为通用页面文案，`sharing.js` 为分享和保存提示，`poster.js` 为绘图配置；`assets.js` 为图片路径，`env.js` 为运行模式。
 - `utils/`：评分与配对、内容服务、朋友查询、分享组装、海报绘制与导出、隐私授权、云初始化和页面跳转。
 - `assets/`：后续素材；当前首页图形为 WXSS 占位，不请求外部图片。
-- `cloudfunctions/`：`ping` 诊断、`genContent` 解读生成、`getResult` 公开结果查询。
+- `cloudfunctions/`：`ping` 诊断、`genContent` 解读生成、`getResult` 公开结果查询、`getHistory` 当前用户最新五条测评。
 - `tests/`、`docs/`：本地测试与模块记录，不打入小程序包。
 
 现有 AITI.md 保持原样。所有新增文件均在本项目目录内。
@@ -114,3 +114,13 @@ M5 验收步骤见 [海报与分享验收](docs/M5-check.md)，实现及待办�
 - [微信官方云开发示例](https://github.com/wechat-miniprogram/miniprogram-demo/blob/main/miniprogram/page/cloud/README.md)：开通云环境与填写环境配置。
 
 微信文档站部分页面本次无法抓取，已使用官方类型定义和腾讯 CloudBase 文档交叉参考；实际控制台步骤以账号内界面为准。
+
+## GitHub 同步与本地配置
+
+本仓库同步了当前小程序、云函数、素材与测试，包括宠物换色、首页双击心形彩虹轨迹、结果页双击闪现气泡。
+
+公开配置使用 `touristappid`、空云环境 ID 和 mock 模式。文档中的 `YOUR_WECHAT_APPID`、`YOUR_CLOUD_ENV_ID`、`<PROJECT_ROOT>` 均为占位符。使用云功能前请在本地配置自己的 AppID、云环境并部署云函数；模型密钥只放在云函数环境变量中。
+
+本机私有配置、环境变量文件、证书与私钥、日志、临时预览、截图和上传任务记录不纳入同步。`output/` 中历史已收录的宠物设计稿保留，新的本地运行产物由 `.gitignore` 排除。
+
+验证：`node tests/run.js`。更新宠物 PNG 后运行 `node tests/generate-pet-mask.js` 重建彩虹遮罩。

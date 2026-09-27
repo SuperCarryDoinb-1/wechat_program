@@ -74,29 +74,40 @@ test('pet: home protects the start button and discards stale scroll and hidden l
   const h = harness('utils/screens/index.js'), queries = [];
   h.wx.createSelectorQuery = () => {
     const query = {
-      selectAll(selector) { assert.ok(selector.includes('.start-area')); return query; },
+      selectAll(selector) { assert.equal(selector, '.brand-row, .start-area'); return query; },
       boundingClientRect(callback) { queries.push(callback); return query; }, exec() {}
     };
     return query;
   };
   const button = { left: 15, right: 360, top: 410, bottom: 485 };
-  h.page.onReady(); queries.shift()([button]);
+  const brand = { left: 15, right: 360, top: 22, bottom: 94 };
+  h.page.onReady(); queries.shift()([brand, button]);
   assert.equal(h.page.data.petLayoutReady, true);
-  assert.deepEqual(h.page.data.petAvoidRects, [button]);
+  const motion = require('../utils/pet-motion');
+  const petConfig = require('../config/pet');
+  const zones = motion.safeZones(375, 667, petConfig.size, h.page.data.petAvoidRects, petConfig.obstacleGap);
+  assert.equal(zones.length, 1);
+  assert.equal(zones[0].minY, brand.bottom + petConfig.obstacleGap);
+  assert.equal(zones[0].maxY, button.top - petConfig.obstacleGap - petConfig.size);
+  for (const point of [{ x: 0, y: -100 }, { x: 375, y: 900 }]) {
+    const bounded = motion.project(point, zones[0]);
+    assert.ok(bounded.y > brand.bottom && bounded.y + petConfig.size < button.top);
+  }
   h.page.refreshPetObstacles(); const stale = queries.shift();
-  h.page.onPageScroll(); stale([button]);
+  h.page.onPageScroll(); stale([brand, button]);
   assert.equal(h.page.data.petLayoutReady, true); assert.equal(h.page.data.petScrolling, true);
   h.page.openQuiz(); assert.equal(h.calls.navigate.length, 1);
-  const timer = [...h.timers.values()][0]; h.timers.clear();
+  const timer = [...h.timers.values()].find(item => item.delay === 32);
+  for (const [id, value] of h.timers) if (value === timer) h.timers.delete(id);
   assert.equal(timer.delay, 32); timer.callback();
-  queries.shift()([{ ...button, top: 310, bottom: 385 }]);
-  assert.equal(h.page.data.petScrolling, false); assert.equal(h.page.data.petAvoidRects[0].top, 310);
+  queries.shift()([{ ...brand, top: -78, bottom: -6 }, { ...button, top: 310, bottom: 385 }]);
+  assert.equal(h.page.data.petScrolling, false); assert.equal(h.page.data.petAvoidRects[1].top, 310);
   h.page.onResize(); const hiddenQuery = queries.shift();
-  h.page.onHide(); const hidden = snapshot(h.page.data); hiddenQuery([button]);
+  h.page.onHide(); const hidden = snapshot(h.page.data); hiddenQuery([brand, button]);
   assert.deepEqual(h.page.data, hidden);
   h.page.onShow(); queries.shift()(null); assert.equal(h.page.data.petLayoutReady, false);
-  h.page.onReady(); queries.shift()([button]); assert.equal(h.page.data.petLayoutReady, true);
-  h.page.onPageScroll(); const lateTimer = [...h.timers.values()][0].callback;
+  h.page.onReady(); queries.shift()([brand, button]); assert.equal(h.page.data.petLayoutReady, true);
+  h.page.onPageScroll(); const lateTimer = [...h.timers.values()].find(item => item.delay === 32).callback;
   h.page.onUnload(); lateTimer(); h.page.onResize(); assert.equal(h.timers.size, 0);
 });
 
@@ -109,7 +120,7 @@ test('pet: quiz header keeps the same PNG and size as home without platform meas
   const imageNode = header.slice(header.indexOf('<view class="quiz-pet"'));
   assert.ok(imageNode.startsWith('<view class="quiz-pet"'));
   assert.match(header, /class="quiz-header quiz-heading"[\s\S]*class="screen-home pressable"[\s\S]*class="quiz-pet"[\s\S]*class="progress-heading"/);
-  assert.doesNotMatch(imageNode, /wx:if|hidden=|petRoamingVisible|available/);
+  assert.doesNotMatch(imageNode.replace(/<view wx:if="{{petRainbow}}"[^>]*\/>/, ''), /wx:if|hidden=|petRoamingVisible|available/);
   assert.doesNotMatch(wxml, /<pet-companion/);
   assert.ok(imageNode.includes("src=\"{{petImage || '" + petConfig.image + "'}}\""));
   assert.ok(imageNode.includes('width: {{petSize || ' + petConfig.size + '}}px; height: {{petSize || ' + petConfig.size + '}}px;'));
@@ -143,20 +154,22 @@ test('pet: answer reactions run independently of the question transition', () =>
   h.page.onUnload(); assert.equal(h.timers.size, 0);
 });
 
-test('pet: tapping the quiz pet cheers repeatedly without answering or navigating', () => {
+test('pet: tapping the quiz pet changes color without jumping, answering or navigating', () => {
   const h = harness();
   const touch = { touches: [{ clientX: 260, clientY: 50, identifier: 1 }] };
   h.page.petTouchStart(touch); h.page.petTouchEnd(); h.page.tapPet();
-  assert.equal(h.page.data.petMood, 'happy');
+  h.tick(280); assert.equal(h.page.data.petMood, 'idle');
+  assert.ok(h.page.data.petHue > 0);
+  const hue = h.page.data.petHue;
   const beat = h.page.data.petBeat;
   h.page.tapPet(); assert.equal(h.page.data.petBeat, beat);
   assert.equal(h.page.data.selected, -1); assert.equal(h.page.data.answered, 0);
   assert.equal(h.pendingAdvances, 0); assert.equal(h.calls.redirect.length, 0);
-  h.tick(require('../config/pet').reactionMs);
-  assert.notEqual(h.page.data.petBeat, beat, 'A queued tap plays after the current reaction');
-  h.tick(require('../config/pet').reactionMs); assert.equal(h.page.data.petMood, 'idle');
+  h.tick(280);
+  assert.notEqual(h.page.data.petHue, hue);
+  assert.equal(h.page.data.petBeat, beat);
   h.page.onHide(); h.page.tapPet(); assert.equal(h.timers.size, 0);
-  h.page.onShow(); h.page.tapPet(); assert.equal(h.page.data.petMood, 'happy');
+  h.page.onShow(); h.page.tapPet(); h.tick(280); assert.equal(h.page.data.petMood, 'idle');
   h.page.onUnload(); h.tick(1200); assert.equal(h.timers.size, 0);
 });
 
@@ -195,7 +208,7 @@ test('pet: quiz movement and dragging stay between home and count at phone width
     h.page.tapPet(); assert.equal(h.page.data.petBeat, beat, 'drag release must not trigger a second tap');
     assert.ok(h.timers.has(h.page._pet._timers.motion));
     h.tick(400); h.page.tapPet(); assert.equal(h.page.data.petMood, 'wave');
-    h.tick(require('../config/pet').reactionMs - 400); assert.equal(h.page.data.petMood, 'happy');
+    h.tick(280); assert.equal(h.page.data.petMood, 'idle'); assert.ok(h.page.data.petHue > 0);
     h.choose(1); h.tick(200); assert.equal(h.page.data.index, 1);
     checkPosition(); assert.equal(h.page.data.petFloating, true);
     h.page.onUnload(); assert.equal(h.timers.size, 0);
@@ -216,7 +229,7 @@ test('pet: stale quiz layout results cannot revive a hidden pet; missing bounds 
   h.page.onHide(); const hidden = snapshot(h.page.data);
   pending.shift()(rects); assert.deepEqual(h.page.data, hidden);
   h.page.onShow(); pending.shift()([null, []]);
-  h.page.tapPet(); assert.equal(h.page.data.petMood, 'happy');
+  h.page.tapPet(); h.tick(280); assert.equal(h.page.data.petMood, 'idle'); assert.ok(h.page.data.petHue > 0);
   assert.equal(h.page.data.petFloating, false);
   h.page.onResize(); const late = pending.shift();
   h.page.onUnload(); late(rects); h.tick(1500); assert.equal(h.timers.size, 0);

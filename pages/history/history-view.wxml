@@ -1,0 +1,33 @@
+<view class="page history-page">
+  <view class="brand-row"><button class="history-back screen-home pressable" hover-class="button-pressed" bindtap="historyHome" aria-label="返回首页"><view class="history-back-arrow" aria-hidden="true"></view><text>{{copy.home}}</text></button></view>
+  <view class="history-title">{{copy.title}}<text class="history-title-note">（最近5次记录）</text></view>
+  <view wx:if="{{loading}}" class="panel history-state" aria-live="polite">{{copy.loading}}</view>
+  <view wx:elif="{{failed}}" class="panel history-state" aria-live="polite">
+    <view class="history-state-title">{{copy.errorTitle}}</view><view class="subtitle">{{copy.errorText}}</view>
+    <button class="secondary" bindtap="refreshHistory">{{copy.retry}}</button>
+  </view>
+  <view wx:elif="{{records.length === 0}}" class="panel history-state">
+    <view class="history-empty-symbol" aria-hidden="true">⌁</view><view class="history-state-title">{{copy.emptyTitle}}</view>
+    <view class="subtitle">{{copy.emptyText}}</view><button class="primary pressable" hover-class="button-pressed" bindtap="historyStart">{{copy.start}}</button>
+  </view>
+  <block wx:else>
+    <view wx:for="{{records}}" wx:key="id" class="history-entry">
+      <view class="sample-card sample-{{item.code}} history-summary" data-id="{{item.id}}" bindtap="toggleHistory" role="button" aria-label="{{item.name}}，{{item.dateLabel}}，{{expandedId === item.id ? copy.collapse : copy.expand}}" aria-expanded="{{expandedId === item.id}}">
+        <image class="sample-portrait" src="{{item.image}}" mode="aspectFit" aria-label="{{item.name}}形象" />
+        <view class="sample-content">
+          <view class="sample-heading"><text class="sample-code">{{item.code}}</text><text class="sample-name">{{item.name}}</text></view>
+          <view class="sample-description">{{item.description}}</view>
+          <view class="history-date">{{item.dateLabel}}</view>
+        </view>
+      </view>
+      <view wx:if="{{expandedId === item.id}}" class="history-detail">
+        <type-card type-code="{{item.code}}" />
+        <view class="history-detail-heading">{{resultCopy.roast}} · {{item.sourceLabel}}</view><view>{{item.roast}}</view>
+        <view class="history-detail-heading">{{resultCopy.tips}}</view>
+        <view class="history-tip" wx:for="{{item.tips}}" wx:for-item="tip" wx:for-index="tipIndex" wx:key="*this">{{tipIndex + 1}}. {{tip}}</view>
+        <view class="history-detail-heading">{{resultCopy.mapTitle}}</view><quadrant-map type-code="{{item.code}}" coords="{{item.coords}}" accent="{{item.type.color}}" /><view class="muted">{{item.leadLabel}}</view>
+      </view>
+    </view>
+    <button class="secondary history-again" bindtap="historyStart">再测一次</button>
+  </block>
+</view>

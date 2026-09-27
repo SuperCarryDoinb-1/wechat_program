@@ -83,7 +83,7 @@ test('结果子模块的数据与事件无覆盖，组装后保持原来的页�
 
 test('排除的旧图片没有运行时引用，当前使用的图片仍被打包', () => {
   const project = require('../project.config.json');
-  const excluded = ['AI.png', 'human.png', 'assets/quiz/ai-runner.png', 'assets/quiz/human-runner.png'];
+  const excluded = ['AI.png', 'human.png', 'assets/quiz/ai-runner.png', 'assets/quiz/human-runner.png', 'assets/assistants/cartoon-strip.png'];
   function sources(directory) {
     return fs.readdirSync(path.join(root, directory), { withFileTypes: true }).flatMap(entry => {
       const relative = directory + '/' + entry.name;
@@ -97,7 +97,7 @@ test('排除的旧图片没有运行时引用，当前使用的图片仍被打�
     assert.ok(!runtime.includes(file), `旧图片重新使用时需取消排除：${file}`);
     assert.ok(project.packOptions.ignore.some(rule => rule.type === 'file' && rule.value === file));
   }
-  for (const file of [require('../config/assets').assistantStrip, require('../config/pet').image, '/assets/quiz/human-runner-cutout.png']) {
+  for (const file of [require('../config/pet').image, '/assets/quiz/human-runner-cutout.png']) {
     assert.ok(!project.packOptions.ignore.some(rule => rule.type === 'file' ? rule.value === file.slice(1) : file.slice(1).startsWith(rule.value + '/')));
   }
 });

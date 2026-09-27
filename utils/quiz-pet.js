@@ -13,7 +13,7 @@ module.exports = function createQuizPet(page, wx, clock) {
       Object.assign(this.data, update);
       if (!this._alive || page._disposed) return;
       const mapped = {};
-      for (const key of ['x', 'y', 'mood', 'beat', 'facing', 'dragging', 'motionReady']) {
+      for (const key of ['x', 'y', 'mood', 'beat', 'facing', 'dragging', 'motionReady', 'hue', 'rainbow']) {
         if (key in update) mapped['pet' + key[0].toUpperCase() + key.slice(1)] = update[key];
       }
       if (Object.keys(mapped).length) page.setData(mapped);

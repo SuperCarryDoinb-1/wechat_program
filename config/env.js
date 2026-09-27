@@ -1,4 +1,5 @@
-// 填入实际环境 ID 后，将 mode 改为 cloud；前端不得放置任何密钥。
+// Public checkout uses mock mode. Configure your own AppID and cloud environment locally.
+// Provider credentials belong only in cloud-function environment variables.
 module.exports = {
   mode: 'mock',
   cloudEnvId: '',

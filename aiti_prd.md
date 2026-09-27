@@ -10,7 +10,7 @@
 | --- | --- |
 | 文档版本 | V1.0 · 当前实现快照 |
 | 基准日期 | 2026-09-10 |
-| 对应项目 | D:\AI\codex\project\wechat_program |
+| 对应项目 | <PROJECT_ROOT> |
 | 产品形态 | 微信原生小程序，三个页面、两个自定义组件 |
 | 规格依据 | 当前页面、组件、配置、工具函数和云函数源码；以实际实现为准 |
 | 文档用途 | 产品评审、交互复刻、算法复现、开发交接、验收对照 |
@@ -3267,7 +3267,7 @@ Page({
   "miniprogramRoot": "./",
   "cloudfunctionRoot": "cloudfunctions/",
   "compileType": "miniprogram",
-  "appid": "wxbb0fad609d9b65b8",
+  "appid": "YOUR_WECHAT_APPID",
   "projectname": "AITI",
   "setting": {
     "es6": true,

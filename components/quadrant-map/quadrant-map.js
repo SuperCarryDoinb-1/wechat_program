@@ -2,6 +2,7 @@ const copy = require('../../config/copy');
 const pairCopy = require('../../config/pair-view');
 Component({
   properties: {
+    typeCode: { type: String, value: '' },
     coords: { type: Object, value: null },
     friendCoords: { type: Object, value: null },
     friendAccent: { type: String, value: '#42D9CE' },

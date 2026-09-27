@@ -19,7 +19,8 @@ const result = calc(fixtures.types.TEA);
 const states = {
   index: require('../utils/screens/index').data,
   quiz: { ...require('../utils/screens/quiz').data, question: questions[0], scene: quiz.scenes[0], sceneColor: quiz.sceneColors[0] },
-  result: { ...require('../utils/screens/result').data, result, type: require('../config/types')[result.code] }
+  result: { ...require('../utils/screens/result').data, result, type: require('../config/types')[result.code] },
+  history: { ...require('../utils/screens/history').data, loading: false }
 };
 function nodes(tree) {
   if (!tree || typeof tree !== 'object') return [];
@@ -29,7 +30,7 @@ for (const entry of ['index', 'quiz', 'result']) {
   const render = context.$gwx(`pages/${entry}/${entry}.wxml`);
   assert.equal(typeof render, 'function');
   const registrations = require(`../pages/${entry}/${entry}.json`).usingComponents;
-  for (const stage of ['index', 'quiz', 'result', 'quiz', 'index']) {
+  for (const stage of ['index', 'quiz', 'result', 'history', 'quiz', 'index']) {
     const tree = render({ stage, screen: states[stage] }), all = nodes(tree);
     const className = stage === 'index' ? 'home-page' : stage + '-page';
     assert.equal(all.filter(node => (node.attr?.class || '').split(' ').includes(className)).length, 1);
@@ -42,7 +43,7 @@ for (const entry of ['index', 'quiz', 'result']) {
       assert.equal(all.filter(node => node.attr?.src === pet.image).length, 1);
       assert.ok(JSON.stringify(tree).includes(questions[0].title));
       assert.equal(all.filter(node => node.tag === 'wx-button' && node.attr?.class?.startsWith('option ')).length, 4);
-    } else assert.equal(pets.length, 1);
+    } else assert.equal(pets.length, stage === 'history' ? 0 : 1);
     assert.equal(all.filter(node => node.tag === 'wx-canvas').length, 0);
   }
   const saving = nodes(render({ stage: 'result', screen: { ...states.result, savingPoster: true } }));

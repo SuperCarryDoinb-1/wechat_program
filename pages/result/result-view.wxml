@@ -1,4 +1,4 @@
-<view class="page result-page">
+<view class="page result-page theme-{{result.code}}">
   <view class="brand-row"><view class="result-brand-actions"><button class="screen-home pressable" hover-class="button-pressed" bindtap="goHome" aria-label="返回首页">‹ 返回首页</button></view><text class="pill">{{copy.result.badge}}</text></view>
   <view wx:if="{{invitation}}" class="empty-result panel"><text class="title">{{copy.title}}</text><view class="subtitle">{{copy.subtitle}}</view><view class="map-hint">{{sharingCopy.timelineHint}}</view></view>
   <block wx:elif="{{result}}">
@@ -9,7 +9,7 @@
     </view>
     <view class="section panel roast-panel"><view class="section-heading"><text>{{copy.result.roast}}</text><text class="small-label">{{contentLoading ? copy.result.aiLoading : contentLabel}}</text></view><view wx:if="{{contentLoading}}" class="skeletons" aria-label="{{copy.result.aiLoading}}"><view class="skeleton"></view><view class="skeleton short"></view></view><view wx:else class="roast-content">{{content.roast}}</view><view wx:if="{{contentNote}}" class="pending-label">{{contentNote}}</view></view>
     <view class="section panel"><view class="section-heading"><text>{{copy.result.tips}}</text></view><view wx:if="{{contentLoading}}" class="skeletons" aria-label="{{copy.result.aiLoading}}"><view class="skeleton"></view><view class="skeleton"></view><view class="skeleton short"></view></view><view wx:else class="tips-content"><view wx:for="{{content.tips}}" wx:key="*this" class="tip-row"><text class="tip-number">{{index + 1}}</text><text>{{item}}</text></view></view></view>
-    <view class="section panel"><view class="section-heading"><text>{{copy.result.mapTitle}}</text></view><quadrant-map coords="{{result.coords}}" accent="{{type.color}}" /><view class="lead-badge">{{leadLabel}}</view></view>
+    <view class="section panel"><view class="section-heading"><text>{{copy.result.mapTitle}}</text></view><quadrant-map type-code="{{result.code}}" coords="{{result.coords}}" accent="{{type.color}}" /><view class="lead-badge">{{leadLabel}}</view></view>
     <view class="section panel details-panel">
       <button class="details-toggle" bindtap="toggleDetails" aria-expanded="{{detailsOpen}}"><text>{{copy.result.details}}</text><text class="toggle-label">{{detailsOpen ? copy.result.collapse : copy.result.expand}} {{detailsOpen ? '−' : '+'}}</text></button>
       <view wx:if="{{detailsOpen}}" class="details-content">
@@ -28,7 +28,7 @@
       <view class="section-heading">{{pairCopy.title}}</view>
       <view class="pair-names"><text >{{pairCopy.you}} · {{type.name}}</text><text >{{pairCopy.friend}} · {{pairing.friendName}}</text></view>
       <view class="pair-title">{{pairing.name}}</view><view class="map-hint">{{pairing.text}}</view>
-      <view class="detail-title">{{pairCopy.map}}</view><quadrant-map coords="{{result.coords}}" accent="{{type.color}}" friend-coords="{{pairing.friendCoords}}" friend-accent="{{pairing.friendColor}}" />
+      <view class="detail-title">{{pairCopy.map}}</view><quadrant-map type-code="{{result.code}}" coords="{{result.coords}}" accent="{{type.color}}" friend-coords="{{pairing.friendCoords}}" friend-accent="{{pairing.friendColor}}" />
       <button class="primary pressable" hover-class="button-pressed" bindtap="savePairPoster" loading="{{savingPoster}}" disabled="{{savingPoster}}">{{pairCopy.save}}</button>
       <button class="home-link" open-type="share">{{pairCopy.share}}</button>
     </view>

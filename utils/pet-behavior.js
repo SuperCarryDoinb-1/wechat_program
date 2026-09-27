@@ -12,6 +12,8 @@ module.exports = function createPetBehavior(clock) {
     clearTimers() {
       Object.keys(this._timers || {}).forEach(name => this.clearTimer(name));
       this._pendingDrag = this._queuedMood = this._touchOrigin = null;
+      this._performing = false;
+      if (this._alive) this.setData({ performing: '', trail: [], bubble: '', rainbow: false });
     },
     later(name, delay, callback) {
       this.clearTimer(name);
@@ -25,7 +27,7 @@ module.exports = function createPetBehavior(clock) {
     },
     position() { return { x: this._actualX, y: this._actualY }; },
     startMotion() {
-      if (!this._alive || !this._active || this._dragging || !this._bounds || !this.data.available || this.data.motionSuspended || this.data.imageFailed) return;
+      if (!this._alive || !this._active || this._dragging || this._performing || !this._bounds || !this.data.available || this.data.motionSuspended || this.data.imageFailed) return;
       if (this._timers.motion !== undefined) return;
       this._lastStep = clock.now();
       this.later('motion', config.tickMs, () => this.moveStep());
@@ -58,10 +60,97 @@ module.exports = function createPetBehavior(clock) {
         else this.setData({ mood: 'idle' });
       });
     },
-    reactToAnswer() { if (!this._dragging) this.react(); },
+    reactToAnswer() { if (!this._dragging && !this._performing) this.react(); },
     tapPet() {
-      if (this.data.passive || this._dragging || clock.now() < (this._ignoreTapUntil || 0)) return;
-      this.react();
+      if (!this._alive || !this._active || !this.data.available || this.data.imageFailed || this.data.motionSuspended || this.data.passive || this._dragging || this._performing || clock.now() < (this._ignoreTapUntil || 0)) return;
+      if (this._timers.tap !== undefined) {
+        this.clearTimer('tap');
+        const scene = this.properties && this.properties.scene;
+        if (scene === 'home') this.drawHeart();
+        else if (scene === 'result') this.blinkAway();
+        else this.changeColor();
+      } else this.later('tap', 280, () => this.changeColor());
+    },
+    changeColor() {
+      this.clearTimer('reaction'); this._queuedMood = null;
+      const hue = ((this.data.hue || 0) + 45 + Math.floor(Math.random() * 270)) % 360;
+      const rainbow = clock.now() >= (this._rainbowAfter || 0) && Math.random() < .25;
+      this.clearTimer('rainbow');
+      this.setData({ hue, rainbow, mood: 'idle' });
+      if (rainbow) {
+        this._rainbowAfter = clock.now() + 20000;
+        this.later('rainbow', 4000, () => this.setData({ rainbow: false }));
+      }
+    },
+    stopPerformance() {
+      this.clearTimer('performance'); this.clearTimer('trail'); this.clearTimer('bubble');
+      this._performing = false; this._target = null;
+      this.setData({ performing: '', trail: [], bubble: '' });
+    },
+    drawHeart() {
+      if (!this._bounds) return;
+      this.stopPerformance(); this.clearTimer('motion'); this.clearTimer('reaction');
+      this._queuedMood = null; this._performing = true;
+      const origin = this.position(), size = this.data.size;
+      // Fit a local heart in the viewport; return to the exact starting position.
+      const maxX = Math.max(0, this._width - size), maxY = Math.max(0, this._height - size);
+      const scale = Math.min(4.2, maxX / 32, maxY / 30);
+      const center = { x: Math.max(16 * scale, Math.min(maxX - 16 * scale, origin.x)),
+        y: Math.max(12 * scale, Math.min(maxY - 18 * scale, origin.y)) };
+      const heart = t => ({ x: center.x + scale * 16 * Math.pow(Math.sin(t), 3),
+        y: center.y - scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) });
+      const first = heart(0), started = clock.now(), trail = [];
+      let previous = first;
+      this.setData({ performing: 'heart', mood: 'idle', trail: [], motionReady: true });
+      const frame = () => {
+        const elapsed = Math.min(3000, clock.now() - started);
+        let next;
+        if (elapsed < 200) {
+          const p = elapsed / 200;
+          next = { x: origin.x + (first.x - origin.x) * p, y: origin.y + (first.y - origin.y) * p };
+        } else if (elapsed <= 2800) {
+          next = heart((elapsed - 200) / 2600 * Math.PI * 2);
+          const dx = next.x - previous.x, dy = next.y - previous.y;
+          trail.push({ id: trail.length, x: previous.x + size / 2, y: previous.y + size / 2,
+            length: Math.hypot(dx, dy) + 2, angle: Math.atan2(dy, dx) * 180 / Math.PI,
+            hue: (elapsed - 200) / 2600 * 360 });
+          previous = next;
+        } else {
+          const p = (elapsed - 2800) / 200;
+          next = { x: first.x + (origin.x - first.x) * p, y: first.y + (origin.y - first.y) * p };
+        }
+        this._actualX = next.x; this._actualY = next.y;
+        this.setData({ ...next, trail: trail.slice() });
+        if (elapsed < 3000) this.later('performance', 40, frame);
+        else {
+          this._performing = false;
+          this.setData({ performing: '', trailFading: true });
+          this.later('trail', 700, () => this.setData({ trail: [], trailFading: false }));
+          this.startMotion();
+        }
+      };
+      this.setData({ trailFading: false });
+      this.later('performance', 40, frame);
+    },
+    blinkAway() {
+      if (!this._bounds) return;
+      this.stopPerformance(); this.clearTimer('motion');
+      this._performing = true;
+      const origin = this.position(), angle = Math.random() * Math.PI * 2;
+      const distance = 45 + Math.random() * 35;
+      let next = motion.project({ x: origin.x + Math.cos(angle) * distance, y: origin.y + Math.sin(angle) * distance }, this._bounds);
+      if (Math.hypot(next.x - origin.x, next.y - origin.y) < 20) {
+        next = motion.project({ x: origin.x - Math.cos(angle) * distance, y: origin.y - Math.sin(angle) * distance }, this._bounds);
+      }
+      this.setData({ performing: 'blink', mood: 'idle', bubble: '' });
+      this.later('performance', 90, () => {
+        this._actualX = next.x; this._actualY = next.y;
+        this.setData({ ...next, bubble: '快来抓我', bubbleBelow: next.y < 50 });
+        this.later('performance', 150, () => {
+          this._performing = false; this.setData({ performing: '' }); this.startMotion();
+        });
+        this.later('bubble', 2200, () => this.setData({ bubble: '' }));
+      });
     },
     touchStart(event) {
       if (!this._alive || !this._active || this.data.passive || this.data.motionSuspended || !this.data.available) return;
@@ -78,6 +167,7 @@ module.exports = function createPetBehavior(clock) {
       if (!touch || !Number.isFinite(touch.clientX) || !Number.isFinite(touch.clientY)) return;
       if (!this._dragging) {
         if (Math.hypot(touch.clientX - this._touchOrigin.x, touch.clientY - this._touchOrigin.y) <= 5) return;
+        this.clearTimer('tap'); this.stopPerformance();
         this._dragging = true;
         this.clearTimer('motion');
         this.setData({ dragging: true });
@@ -118,6 +208,7 @@ module.exports = function createPetBehavior(clock) {
       this._pendingDrag = null;
     },
     applyBounds(bounds) {
+      if (this._performing) this.stopPerformance();
       const current = this.position(), next = motion.project(current, bounds);
       this._bounds = bounds;
       if (this._target) this._target = motion.project(this._target, bounds);

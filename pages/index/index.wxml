@@ -1,4 +1,5 @@
 <import src="../../utils/flow-view.wxml" />
 <block wx:if="{{stage === 'index'}}"><template is="index" data="{{...screen}}" /></block>
 <block wx:elif="{{stage === 'quiz'}}"><template is="quiz" data="{{...screen}}" /></block>
+<block wx:elif="{{stage === 'history'}}"><template is="history" data="{{...screen}}" /></block>
 <block wx:else><template is="result" data="{{...screen}}" /></block>

@@ -6,14 +6,22 @@ const root = path.resolve(__dirname, '..');
 const files = {
   genContent: ['config/questions.js', 'config/types.js', 'config/rarity.js', 'config/content.js', 'config/blocklist.js',
     'utils/scoring.js', 'utils/content-validation.js', 'utils/public-result.js'],
-  getResult: ['config/types.js', 'utils/public-result.js']
+  getResult: ['config/types.js', 'utils/public-result.js'],
+  getHistory: ['config/types.js', 'config/history.js', 'config/content.js', 'config/blocklist.js',
+    'utils/public-result.js', 'utils/content-validation.js', 'utils/history-record.js']
 };
 for (const [name, sources] of Object.entries(files)) {
   for (const source of sources) {
     const from = path.join(root, source);
-    const to = path.join(root, 'cloudfunctions', name, 'shared', source);
+    const to = name === 'getHistory'
+      ? path.join(root, 'cloudfunctions', name, path.basename(source))
+      : path.join(root, 'cloudfunctions', name, 'shared', source);
     fs.mkdirSync(path.dirname(to), { recursive: true });
-    fs.copyFileSync(from, to);
+    if (name === 'getHistory') {
+      // Keep this deployment flat: the IDE uploader can lose nested paths on Windows.
+      const text = fs.readFileSync(from, 'utf8').replace(/require\(['"](?:\.\.\/config\/|\.\/)([^/'"]+)['"]\)/g, "require('./$1')");
+      fs.writeFileSync(to, text);
+    } else fs.copyFileSync(from, to);
   }
 }
 console.log('Cloud function shared files synchronized.');

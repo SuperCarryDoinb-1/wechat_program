@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>微信云开发部署教程 · AITI</title>
+  <style>
+    :root { color-scheme: light; --green: #087f5b; --ink: #20312c; --muted: #596b63; --line: #dce7e1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f7f5; color: var(--ink); font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif; line-height: 1.85; }
+    main { max-width: 1000px; margin: 36px auto; padding: 44px 54px; background: white; border: 1px solid var(--line); border-radius: 20px; }
+    h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.4; margin: 8px 0 18px; }
+    h2 { font-size: 23px; line-height: 1.5; margin: 0 0 20px; }
+    h3 { font-size: 18px; margin-top: 26px; }
+    section { border-top: 1px solid var(--line); margin-top: 36px; padding-top: 32px; scroll-margin-top: 20px; }
+    .eyebrow { color: var(--green); font-weight: 700; letter-spacing: 2px; }
+    .muted { color: var(--muted); }
+    .note, .success { padding: 15px 20px; border-radius: 9px; margin: 20px 0; background: #f0f6fa; border-left: 4px solid #4684a3; }
+    .success { background: #edf8f1; border-left-color: var(--green); }
+    a { color: var(--green); text-underline-offset: 3px; }
+    nav { background: #f5f8f6; padding: 20px 25px; border-radius: 12px; margin-top: 26px; }
+    nav ol { margin-bottom: 0; }
+    li { margin: 9px 0; }
+    code { background: #eef3f0; padding: 2px 5px; border-radius: 4px; overflow-wrap: anywhere; font-family: Consolas, monospace; font-size: .94em; }
+    pre { background: #172b25; color: #edf8f1; padding: 18px 20px; border-radius: 10px; overflow: auto; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    pre code { background: none; color: inherit; padding: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15px; }
+    th, td { border: 1px solid var(--line); padding: 11px 14px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    th { background: #eef5f0; }
+    footer { margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+    @media (max-width: 650px) { main { margin: 0; padding: 26px 20px; border: 0; border-radius: 0; } ol, ul { padding-left: 24px; } th, td { padding: 9px; } }
+    @media print { body { background: white; } main { max-width: none; margin: 0; padding: 0; border: 0; } nav { display: none; } pre { background: #f3f5f4; color: black; border: 1px solid #ccc; } h2, h3 { break-after: avoid; } tr, .success, .note { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">AITI · 零基础操作指南</div>
+    <h1>微信云开发部署教程</h1>
+    <p>按照“点哪里、填什么、看到什么算成功”的顺序，完成数据库创建、云函数部署与真实答题验证。</p>
+    <div class="note"><strong>AppID 和云环境 ID 已在项目代码中填好。</strong>现在主要是在微信开发者工具中完成部署。界面按钮可能因版本略有不同，下面同时列出了常见名称。</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>项目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>项目目录</td><td><code><PROJECT_ROOT></code></td></tr>
+        <tr><td>小程序 AppID</td><td><code>YOUR_WECHAT_APPID</code></td></tr>
+        <tr><td>云环境 ID</td><td><code>YOUR_CLOUD_ENV_ID</code></td></tr>
+        <tr><td>数据库集合</td><td><code>results</code></td></tr>
+        <tr><td>云函数</td><td><code>ping</code>、<code>genContent</code>、<code>getResult</code></td></tr>
+      </tbody>
+    </table></div>
+  </header>
+  <nav aria-label="教程目录"><strong>操作目录</strong><ol>
+    <li><a href="#step1">打开项目，分清两个操作窗口</a></li>
+    <li><a href="#step2">创建 results 集合</a></li>
+    <li><a href="#step3">设置集合安全规则</a></li>
+    <li><a href="#step4">给 cloudfunctions 选择云环境</a></li>
+    <li><a href="#step5">依次上传三个云函数</a></li>
+    <li><a href="#step6">设置 genContent 执行超时</a></li>
+    <li><a href="#step7">检查小程序与云函数的连接</a></li>
+    <li><a href="#step8">完成新测评，检查数据库</a></li>
+    <li><a href="#step9">常见问题与日志查看</a></li>
+  </ol></nav>
+
+  <section id="step1">
+    <h2>第一步：打开项目，分清两个操作窗口</h2>
+    <ol>
+      <li>打开<strong>微信开发者工具</strong>，用有这个小程序开发权限的微信扫码登录。</li>
+      <li>打开现有项目 <code>wechat_program</code>。如果项目列表里没有，点击<strong>导入</strong>，选择目录 <code><PROJECT_ROOT></code>。</li>
+      <li>确认导入时的 AppID 是 <code>YOUR_WECHAT_APPID</code>。</li>
+      <li>进入项目后，点击顶部的<strong>云开发</strong>。</li>
+    </ol>
+    <p>接下来会用到两个界面：</p>
+    <table><thead><tr><th>界面</th><th>用途</th></tr></thead><tbody>
+      <tr><td>开发者工具主窗口：有代码文件列表、手机模拟器</td><td>上传本地云函数、编译小程序</td></tr>
+      <tr><td>云开发控制台：有数据库、云函数、环境设置</td><td>创建集合、设置权限、查看云端数据</td></tr>
+    </tbody></table>
+    <div class="note">每次进入云开发控制台，先确认当前环境 ID 是 <code>YOUR_CLOUD_ENV_ID</code>。数据库和三个云函数都要放在同一个环境。</div>
+  </section>
+
+  <section id="step2">
+    <h2>第二步：创建 results 集合</h2>
+    <p>“集合”可以理解成保存测评结果的一张表。</p>
+    <ol>
+      <li>在<strong>云开发控制台</strong>中点击<strong>数据库</strong>。有的界面叫<strong>文档型数据库</strong>。</li>
+      <li>找到<strong>集合</strong>或<strong>集合管理</strong>。</li>
+      <li>点击<strong>添加集合</strong>、<strong>新建集合</strong>或旁边的 <strong>＋</strong>。</li>
+      <li>在集合名称里输入 <code>results</code>。</li>
+      <li>点击<strong>确定</strong>或<strong>创建</strong>。</li>
+    </ol>
+    <p>名称全部小写，末尾有一个 <code>s</code>，前后不要有空格。如果列表里已经有 <code>results</code>，直接使用，不用重复创建。</p>
+    <div class="success"><strong>成功标志：</strong>集合列表中出现 <code>results</code>，点击后显示空数据列表。里面没有记录是正常的，不需要手动添加数据或字段。</div>
+  </section>
+
+  <section id="step3">
+    <h2>第三步：设置 results 的安全规则</h2>
+    <ol>
+      <li>选中刚创建的 <code>results</code>。</li>
+      <li>找到<strong>权限设置</strong>、<strong>权限管理</strong>或<strong>数据权限</strong>。</li>
+      <li>选择<strong>自定义安全规则</strong>。有的界面需要点击<strong>切换到安全规则</strong>。</li>
+      <li>如果出现代码编辑框，选中<strong>这个编辑框中的全部内容</strong>，替换为下面的代码。</li>
+    </ol>
+    <pre><code>{
+  "read": false,
+  "write": false
+}</code></pre>
+    <ol start="5"><li>点击<strong>保存</strong>、<strong>确定</strong>或<strong>应用</strong>。</li><li>再次打开权限设置，确认内容已经保存。</li></ol>
+    <p>官方的新界面入口是：<strong>文档型数据库 → 集合管理 → 权限管理 → 切换到安全规则</strong>。参见 <a href="https://docs.cloudbase.net/database/security-rules">官方安全规则说明</a>。</p>
+    <p>这里的意思是：小程序客户端不能直接读写这个集合，数据统一由项目里的云函数处理。<strong>设置为 false 不会阻止本项目的云函数保存结果。</strong></p>
+    <div class="note"><code>cloudfunctions/database.rules.json</code> 是项目中保存规则的文件。仅有这个文件不会自动设置云端权限，所以需要完成上面的粘贴与保存。</div>
+  </section>
+
+  <section id="step4">
+    <h2>第四步：给本地 cloudfunctions 选择云环境</h2>
+    <p>切回<strong>开发者工具主窗口</strong>，就是能看到代码文件的窗口。</p>
+    <ol>
+      <li>在左侧文件列表中找到 <code>cloudfunctions</code>。</li>
+      <li>点击文件夹左边的小箭头，展开它。应该能看到下面的结构。</li>
+    </ol>
+    <pre><code>cloudfunctions
+├─ genContent
+├─ getResult
+├─ ping
+└─ database.rules.json</code></pre>
+    <ol start="3">
+      <li>用鼠标右键点击最外层的 <strong>cloudfunctions 文件夹</strong>。</li>
+      <li>找到类似<strong>当前环境</strong>、<strong>选择云环境</strong>或<strong>切换环境</strong>的菜单。</li>
+      <li>选择环境 ID 为 <code>YOUR_CLOUD_ENV_ID</code> 的环境。列表有时先显示你创建环境时填写的名称，请对照环境详情确认。</li>
+      <li>等待文件列表或云函数信息刷新。</li>
+    </ol>
+    <div class="success"><strong>成功标志：</strong>再次右键查看时，这个环境已经被选中。</div>
+    <p>如果这里没有环境可选：</p>
+    <ul>
+      <li>确认你在同一个项目中已经打开过云开发控制台。</li>
+      <li>确认控制台能看到这个环境。</li>
+      <li>关闭并重新打开项目后，再试一次。</li>
+      <li>如果控制台有环境，但右键菜单始终没有，截图求助，不用重新创建项目或环境。</li>
+    </ul>
+  </section>
+
+  <section id="step5">
+    <h2>第五步：依次上传三个云函数</h2>
+    <p>“上传并部署”就是把电脑上的后端代码放到微信云端，让小程序可以调用。</p>
+    <p>先部署 <code>ping</code>：</p>
+    <ol>
+      <li>在左侧展开 <code>cloudfunctions</code>。</li>
+      <li><strong>右键点击 ping 文件夹。</strong></li>
+      <li>选择<strong>上传并部署：云端安装依赖</strong>。有的版本叫“上传并部署：云端安装依赖（不上传 node_modules）”；首次部署也可能显示“创建并部署：云端安装依赖”。</li>
+      <li>如果弹出目标环境确认，核对是 <code>YOUR_CLOUD_ENV_ID</code>。</li>
+      <li>等待上传和安装结束，看到成功提示。</li>
+    </ol>
+    <p>然后用同样的方法，依次部署 <code>genContent</code> 和 <code>getResult</code>。</p>
+    <div class="note"><strong>要右键文件夹，不是文件夹中的 index.js 文件。</strong>每个云函数需要完整上传，里面的 <code>package.json</code> 和 <code>shared</code> 等文件也要一起带上。选择“云端安装依赖”后，不需要先在电脑上手动安装这些依赖。参见 <a href="https://docs.cloudbase.net/cloud-function/quick-start">官方部署说明</a>。</div>
+    <table><thead><tr><th>云函数</th><th>作用</th></tr></thead><tbody>
+      <tr><td><code>ping</code></td><td>检查小程序能否调用云端</td></tr>
+      <tr><td><code>genContent</code></td><td>保存测评结果并返回解读</td></tr>
+      <tr><td><code>getResult</code></td><td>查询分享链接对应的公开结果</td></tr>
+    </tbody></table>
+    <p>上传完后，打开<strong>云开发控制台 → 云函数</strong>，刷新列表。</p>
+    <div class="success"><strong>成功标志：</strong>云端列表里能看到 <code>ping</code>、<code>genContent</code>、<code>getResult</code> 三个函数，并且部署已完成。</div>
+    <p>如果某个函数显示部署失败，展开它的错误详情，保留错误文字或截图。不要仅凭文件夹已经出现在列表里就判断成功。</p>
+  </section>
+
+  <section id="step6">
+    <h2>第六步：把 genContent 执行超时改为 15 秒</h2>
+    <ol>
+      <li>在<strong>云开发控制台</strong>进入<strong>云函数</strong>或<strong>函数列表</strong>。</li>
+      <li>点击 <code>genContent</code>，进入函数详情。</li>
+      <li>找到<strong>配置</strong>、<strong>函数配置</strong>或<strong>配置管理</strong>。</li>
+      <li>找到<strong>执行超时时间</strong>或<strong>超时时间</strong>。</li>
+      <li>如果有<strong>编辑</strong>按钮，先点击编辑。</li>
+      <li>将数值改为 <code>15</code>。</li>
+      <li>确认旁边单位是<strong>秒</strong>，然后点击<strong>保存</strong>。</li>
+    </ol>
+    <p>如果界面明确以毫秒为单位，则填 <code>15000</code>；以页面标注为准。</p>
+    <div class="success"><strong>成功标志：</strong>保存后，配置页面显示执行超时时间为 15 秒。官方说明中，函数详情页可查看运行内存、超时时间和调用日志。参见 <a href="https://docs.cloudbase.net/recipes/add-cloud-function-wechat-miniprogram">官方函数入口说明</a>。</div>
+    <p>这里改的是<strong>云函数的执行超时</strong>，不用改项目 <code>config/env.js</code> 中的 <code>timeoutMs: 8000</code>，它是前端等待时间。</p>
+  </section>
+
+  <section id="step7">
+    <h2>第七步：先检查小程序能不能连接云函数</h2>
+    <p>这一步只检查连接，不会创建测评结果。</p>
+    <ol>
+      <li>回到开发者工具主窗口。</li>
+      <li>点击顶部<strong>编译</strong>，等手机模拟器显示小程序首页。</li>
+      <li>打开<strong>调试器</strong>。通常在窗口下方，如果没显示，可以点击工具栏中的调试器。</li>
+      <li>找到 <strong>Console / 控制台</strong> 标签。</li>
+      <li>在最下面可以输入代码的位置，粘贴以下完整代码。</li>
+    </ol>
+    <pre><code>wx.cloud.callFunction({
+  name: 'ping',
+  data: {}
+}).then(res =&gt; {
+  console.log('云端连接结果：', res.result)
+}).catch(err =&gt; {
+  console.error('云端连接失败：', err)
+})</code></pre>
+    <ol start="6"><li>按回车执行。</li></ol>
+    <div class="note">这段代码粘贴到<strong>开发者工具的 Console</strong>，不是 Windows 的 PowerShell，也不是某个代码文件。</div>
+    <p>正常情况下，会输出类似：</p>
+    <pre><code>{
+  ok: true,
+  message: "ok",
+  database: "unchecked"
+}</code></pre>
+    <div class="success"><strong>看到 ok: true，说明小程序已经成功调用 ping。</strong></div>
+    <p><code>database: "unchecked"</code> 是正常的，意思是这次只检查云函数连接，还没有检查数据库。下一步通过真实答题验证保存。</p>
+    <p>如果先看到 <code>Promise {&lt;pending&gt;}</code>，继续等后续输出，它本身不是报错。</p>
+  </section>
+
+  <section id="step8">
+    <h2>第八步：完成一次新测评，检查数据库</h2>
+    <ol>
+      <li>在手机模拟器的小程序首页，点击<strong>开始测试</strong>。</li>
+      <li>完整回答 12 道题。</li>
+      <li>进入结果页后，等待解读内容出现。</li>
+      <li>如果你之前已经做过测试，请点击<strong>重新测试</strong>，完成一轮新的答题。仅打开旧结果页可能使用本地缓存，不一定新增云端记录。</li>
+      <li>打开<strong>云开发控制台</strong>。</li>
+      <li>确认环境是 <code>YOUR_CLOUD_ENV_ID</code>。</li>
+      <li>进入<strong>数据库 → results</strong>。</li>
+      <li>点击刷新按钮。</li>
+    </ol>
+    <div class="success"><strong>成功标志：</strong><code>results</code> 里出现一条新记录。展开后，你应该能看到以下字段。</div>
+    <table><thead><tr><th>字段</th><th>含义</th></tr></thead><tbody>
+      <tr><td><code>_id</code></td><td>这条结果的唯一编号</td></tr>
+      <tr><td><code>_openid</code></td><td>调用者的微信身份标识</td></tr>
+      <tr><td><code>code</code></td><td>测评类型，例如 TEM</td></tr>
+      <tr><td><code>scores</code></td><td>测评分数</td></tr>
+      <tr><td><code>answers</code></td><td>12 道题的答案</td></tr>
+      <tr><td><code>roast</code></td><td>结果文案</td></tr>
+      <tr><td><code>tips</code></td><td>建议</td></tr>
+      <tr><td><code>source</code></td><td>文案来源</td></tr>
+      <tr><td><code>createdAt</code></td><td>创建时间</td></tr>
+    </tbody></table>
+    <p><strong>暂时没有配置 AI 模型时，source 是 mock 属于正常现象。</strong>项目会使用示例文案，但这条记录确实保存在云数据库中。可以先把云端保存和分享功能跑通，再接入 AI 模型。</p>
+    <p>如果界面显示的是<strong>离线结果</strong>，而 <code>results</code> 里没有记录，说明答题功能可用，但云端保存还没有成功。</p>
+  </section>
+
+  <section id="step9">
+    <h2>第九步：遇到问题时，按现象检查</h2>
+    <div class="table-wrap"><table><thead><tr><th>看到的情况</th><th>先检查哪里</th></tr></thead><tbody>
+      <tr><td>找不到云函数、<code>FUNCTION_NOT_FOUND</code></td><td>三个函数是否部署成功，部署环境是否正确</td></tr>
+      <tr><td>非法的 env、环境访问失败</td><td>环境是否属于或已关联当前 AppID，环境 ID 是否一致</td></tr>
+      <tr><td><code>DATABASE_WRITE_FAILED</code></td><td>当前环境是否创建了小写 results 集合</td></tr>
+      <tr><td><code>Cannot find module</code>、依赖安装失败</td><td>是否选择了“云端安装依赖”；打开部署日志查看具体错误</td></tr>
+      <tr><td>执行超时</td><td>genContent 的 15 秒配置是否保存成功，再查看函数日志</td></tr>
+      <tr><td>结果页正常，但数据库为空</td><td>是否重新完成了答题；是否查看了正确环境并刷新集合</td></tr>
+      <tr><td>在云端测试 genContent 提示 <code>UNAUTHENTICATED</code></td><td>请从小程序中答题调用，云端测试面板可能没有真实用户身份</td></tr>
+    </tbody></table></div>
+    <h3>查看后端错误日志</h3>
+    <p>进入：<strong>云开发控制台 → 云函数 → genContent → 日志</strong>。</p>
+    <p>选择最近的时间段，找到刚才答题对应的调用记录，展开详情。截图求助时带上错误文字即可。</p>
+    <div class="note">可以先做到第三步：创建 results 并保存安全规则。如果中途找不到按钮，发送当前页面截图，即可根据你实际看到的界面继续操作。</div>
+  </section>
+  <footer>本教程对应当前 AITI 项目的配置与实现。页面样式完全内置，可离线阅读；官方文档链接需要联网。可使用浏览器 Ctrl + P 打印或另存为 PDF。</footer>
+</main>
+</body>
+</html>

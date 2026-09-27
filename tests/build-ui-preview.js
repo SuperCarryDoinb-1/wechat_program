@@ -57,14 +57,14 @@ function component(name, props) {
   }
   if (name === 'type-card') {
     const code = props['type-code'];
-    return { code, type: types[code], image: '', copy: copy.result };
+    return { code, type: types[code], image: assets.types[code], copy: copy.result };
   }
   const coords = props.coords, friend = props['friend-coords'];
   const clamp = n => Math.min(1, Math.max(-1, n));
   const point = c => ({ left: (clamp(c.x) + 1) * 50, top: (1 - clamp(c.y)) * 50 });
   const own = point(coords), other = friend ? point(friend) : own;
   const samePoint = own.left === other.left && own.top === other.top;
-  return { copy: copy.result, pairCopy, valid: true, ...own, accent: props.accent,
+  return { copy: copy.result, pairCopy, typeCode: props['type-code'] || '', valid: true, ...own, accent: props.accent,
     friendValid: !!friend, friendLeft: other.left, friendTop: other.top, friendAccent: props['friend-accent'], samePoint,
     connection: !friend || samePoint ? [] : Array.from({ length: 41 }, (_, id) => ({ id, left: own.left + (other.left - own.left) * id / 40, top: own.top + (other.top - own.top) * id / 40 })) };
 }
@@ -114,7 +114,7 @@ const base = { copy, assets, sharingCopy, pairCopy, petAvoidRects: [], petLayout
   runnerFilters: quiz.runnerFilters,
   petImage: petConfig.image, petSize: petConfig.size, petBeat: -1,
   petMood: 'idle', petFacing: 1, petFloating: false, petX: 0, petY: 0, petMotionReady: false, petDragging: false };
-const screens = { index: [screen('index', { ...base, singlePage: false, friendMessage: '', showDiagnostics: false, modeLabel: '', checking: false, checkMessage: '', typePreviews: Object.keys(types).map(code => ({ code, ...types[code] })) })], quiz: [], result: [], details: [], pair: [], privacy: [] };
+const screens = { index: [screen('index', { ...base, ...require('../utils/screens/index').data })], quiz: [], result: [], details: [], pair: [], privacy: [] };
 questions.forEach((question, index) => screens.quiz.push(screen('quiz', { ...base, question, scene: quiz.scenes[index], sceneColor: quiz.sceneColors[index % quiz.sceneColors.length], image: '', number: index + 1, index, total: 12, answered: index, progress: Math.round(index / 12 * 100), selected: -1, transitioning: false, submitting: false, submitError: '' })));
 for (const code of Object.keys(types)) {
   const type = types[code], result = calc(fixtures.types[code]);

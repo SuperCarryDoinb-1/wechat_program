@@ -1,0 +1,107 @@
+// 人设展示版控制在 30～40 个非空白、非标点字符；原始人设另存供对照。
+module.exports = {
+  TEM: {
+    name: 'AI 驯兽师', color: '#FF943D', rarity: 'hidden',
+    slogan: '你不用 AI,你使唤 AI。',
+    persona: '提示词比周报还长，你把 AI 的效率拧到最大档。不问它行不行，只研究怎么让它行。',
+    personaOriginal: '你的提示词比周报还长。AI 在你手里是拧到最大档的机器,你从不问它行不行,只问怎么让它行。',
+    pros: ['效率是别人的三倍', '从不被 AI 忽悠。'],
+    cons: ['对 AI 没耐心,对人也没耐心', '看不得别人"就这么用"。'],
+    scene: '同事说"AI 写的不行",你走过去改了三行提示词,AI 交出了同事想要的东西,同事沉默了。',
+    match: { best: { code: 'TEA', reason: '一个能干一个敢用' }, worst: { code: 'PGM', reason: '' } },
+    chain: { looksDownOn: { code: 'TEA', reason: '会用和会用是两回事' }, lookedDownBy: { code: 'PEM', reason: '把 AI 当牲口,你有没有心' } },
+    roastFallback: '提示词像操作手册，连 AI 看了都想申请岗前培训。',
+    tipsFallback: ['先写清目标和验收标准，再补背景。', '关键事实仍要核查原始出处。', '保留有效提示词，减少重复调试。']
+  },
+  TEA: {
+    name: 'AI 甩手掌柜', color: '#F7D65C', rarity: 'common',
+    slogan: '活是 AI 干的,锅是你背的,但你不在乎。',
+    persona: '周报文案全交给 AI，能不动手就不动手。你追求的不是完美，而是早点下班的快乐。',
+    personaOriginal: '能交给 AI 的绝不亲自动手,周报文案生日祝福全部外包。你没有焦虑,你只有"快"。',
+    pros: ['活得最轻松', '第一批享受 AI 红利的人。'],
+    cons: ['出错的时候你不知道错在哪', '有一天可能发现自己什么都不会了。'],
+    scene: '老板问"这段数据怎么来的",你打开对话记录翻了三分钟,然后说"我再确认一下"。',
+    match: { best: { code: 'TGM', reason: '他帮你兜底' }, worst: { code: 'PGM', reason: '' } },
+    chain: { looksDownOn: { code: 'TGA', reason: '有 AI 还累成这样' }, lookedDownBy: { code: 'TEM', reason: '' } },
+    roastFallback: '下班速度领先全场，追问出处时加载得也最久。',
+    tipsFallback: ['交付前通读一遍，确认核心结论。', '数字和引用单独核对。', '每次保留一项自己完成的核心步骤。']
+  },
+  PEM: {
+    name: '碳硅合伙人', color: '#42D9CE', rarity: 'common',
+    slogan: '你和 AI 五五开,谁也不是谁的工具。',
+    persona: '你和 AI 一起想点子、推翻再重来。凌晨三点还在改方案时，它是你默契的搭档。',
+    personaOriginal: '你和 AI 一起想点子、一起推翻、一起重来。它不是工具也不是神,是凌晨三点陪你改方案的家伙。',
+    pros: ['创造力被放大', '最会"聊出东西"。'],
+    cons: ['容易把 AI 的想法当成自己的', '有时分不清是自己厉害还是它厉害。'],
+    scene: '方案通过后有人夸你,你脱口而出"其实是我们一起想的",然后发现没人知道"我们"是谁。',
+    match: { best: { code: 'PEA', reason: '都对 AI 有感情' }, worst: { code: 'TGM', reason: '' } },
+    chain: { looksDownOn: { code: 'TEM', reason: '把 AI 当牲口' }, lookedDownBy: { code: 'TGM', reason: '跟机器谈感情' } },
+    roastFallback: '方案是一起想的，开会时却只有你替搭档发言。',
+    tipsFallback: ['先记下自己的想法，再让 AI 扩展。', '让 AI 提出反例，比较不同方案。', '最后用自己的话写出选择理由。']
+  },
+  PEA: {
+    name: '硅基信徒', color: '#B08AFF', rarity: 'common',
+    slogan: 'AI 说的,你都信,信到发光。',
+    persona: 'AI 的推荐你愿意试，它的建议你愿意听。不是不知道它会错，只是习惯先相信再说。',
+    personaOriginal: 'AI 推荐的餐厅你会去,AI 说的养生你会信。你不是不懂它会错,你只是选择相信。',
+    pros: ['最早拥抱新事物', '心态好,从不内耗。'],
+    cons: ['被编造的信息坑过不止一次', '容易把 AI 的话当真理转述给别人。'],
+    scene: '按 AI 推荐排了两小时队,到店发现这家店三年前就倒闭了。',
+    match: { best: { code: 'PEM', reason: '' }, worst: { code: 'TGM', reason: '' } },
+    chain: { looksDownOn: { code: 'PGM', reason: '活在上个时代' }, lookedDownBy: { code: 'TGA', reason: '你倒是清醒一点' } },
+    roastFallback: '信任额度给得很足，事实核查偶尔余额不足。',
+    tipsFallback: ['把 AI 的回答当线索继续查证。', '具体信息核对原始出处。', '重要决定先找可靠来源交叉验证。']
+  },
+  TGM: {
+    name: 'AI 审讯官', color: '#6AA9FF', rarity: 'common',
+    slogan: '每一句回答,你都要它交代出处。',
+    persona: '你用 AI，也查 AI。数据要出处，代码要实测，交出去的每一份成果都得过你这关。',
+    personaOriginal: '你用 AI,但你不信 AI。每个数据都要出处,每段代码都要跑一遍。你是 AI 时代的质检员。',
+    pros: ['从不被 AI 坑', '产出质量最稳。'],
+    cons: ['核查花的时间比 AI 省的时间还多', '总觉得别人用得太随便。'],
+    scene: 'AI 给了一个链接,你点开发现是编的,截图发群里:"看,我说什么来着。"',
+    match: { best: { code: 'TEA', reason: '你查他用' }, worst: { code: 'PEA', reason: '' } },
+    chain: { looksDownOn: { code: 'PEM', reason: '跟机器谈什么感情' }, lookedDownBy: { code: 'PGA', reason: '累不累' } },
+    roastFallback: '别人用 AI 省时间，你给省下的时间安排了复审。',
+    tipsFallback: ['按风险分级核查，先查关键结论。', '给核查设时间上限，避免反复确认。', '整理常用可靠来源，提高查证效率。']
+  },
+  TGA: {
+    name: '赛博牛马', color: '#92AB91', rarity: 'common',
+    slogan: '你不想用 AI,但 KPI 想。',
+    persona: '公司要求用 AI，你就边吐槽边学。产出翻倍工资没翻，每次新任务都让你想叹气。',
+    personaOriginal: '你没想过用 AI,是公司要求的。产出翻倍,工资没翻。你对 AI 没有恨,只有一种"又来了"的疲惫。',
+    pros: ['适应力其实很强', '最懂 AI 在真实工作里哪儿不好用。'],
+    cons: ['被动使用,从不主动探索', '把对工作的怨气算到 AI 头上。'],
+    scene: '周五下班前领导发来"试试用 AI 做一版",你打开 AI,输入的第一句话是"帮我写一封辞职信",然后删了。',
+    match: { best: { code: 'PGM', reason: '都想歇会儿' }, worst: { code: 'TEA', reason: '' } },
+    chain: { looksDownOn: { code: 'PEA', reason: '清醒一点' }, lookedDownBy: { code: 'TEA', reason: '有 AI 还累成这样' } },
+    roastFallback: '工具升级了，待办也升级了，只有下班时间没升级。',
+    tipsFallback: ['先让 AI 处理一项重复的小任务。', '记录节省的时间与需要返工的部分。', '向团队说明适用范围和交付标准。']
+  },
+  PGM: {
+    name: '碳基原教旨', color: '#BD9272', rarity: 'common',
+    slogan: '人类的事,人类自己来。',
+    persona: '你不是不会用 AI，只想保留自己的判断。写作要有人味，决定亲自做，聊天找活人。',
+    personaOriginal: '你不是不会用 AI,是不想。写作要有人味,决定要自己做,聊天要找活人。看到 AI 生图你会皱眉。',
+    pros: ['最有主见', '审美和判断没被稀释。'],
+    cons: ['效率吃亏', '偶尔被时代甩得有点远。'],
+    scene: '朋友聚会全在聊 AI,你说"我觉得这些东西……",大家看着你,你说"……挺好的"。',
+    match: { best: { code: 'TGA', reason: '' }, worst: { code: 'PEA', reason: '' } },
+    chain: { looksDownOn: { code: 'PGA', reason: '要么用要么不用' }, lookedDownBy: { code: 'PEA', reason: '活在上个时代' } },
+    roastFallback: '坚持手工的含金量很高，待办清单也跟着镀了金。',
+    tipsFallback: ['选一个低风险杂务试用 AI。', '保留创意和判断，把整理工作交出去。', '比较一次手工与辅助结果再做选择。']
+  },
+  PGA: {
+    name: 'AI 真香党', color: '#FF8DC0', rarity: 'common',
+    slogan: '嘴上说不用,睡前还是聊了两小时。',
+    persona: '公开对 AI 保持警惕，私下却和它聊到深夜。白天说再也不用，晚上又打开了对话框。',
+    personaOriginal: '你公开对 AI 保持警惕,私下和它聊到深夜。删掉记录,第二天再打开。你知道不好,但它真的懂你。',
+    pros: ['最诚实的用户——嘴硬但身体诚实', '对 AI 的好坏体会最深。'],
+    cons: ['拧巴', '在"用"和"不用"之间反复横跳。'],
+    scene: '群里说"我从来不用 AI 写东西",同时右手正在把 AI 写的东西粘贴进文档。',
+    match: { best: { code: 'TEM', reason: '他能把你聊天的能力变成生产力' }, worst: { code: 'TGA', reason: '' } },
+    chain: { looksDownOn: { code: 'TGM', reason: '累不累' }, lookedDownBy: { code: 'PGM', reason: '要么用要么不用' } },
+    roastFallback: '嘴上保持距离，聊天窗口却一直是置顶嘉宾。',
+    tipsFallback: ['为聊天设一个结束时间。', '把有用建议转成现实中的小行动。', '不输入隐私，重要感受也和可信的人聊聊。']
+  }
+};

@@ -1,3 +1,4 @@
 @import "../pages/index/index-view.wxss";
 @import "../pages/quiz/quiz-view.wxss";
 @import "../pages/result/result-view.wxss";
+@import "../pages/history/history-view.wxss";

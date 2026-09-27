@@ -11,3 +11,4 @@ require('./architecture.test');
 require('./flow-runtime.test');
 require('./pet.test');
 require('./flow.test');
+require('./history.test');

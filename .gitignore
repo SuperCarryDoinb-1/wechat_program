@@ -14,6 +14,12 @@ coverage/
 *.p12
 *.pfx
 project.private.config.json
+credentials*.json
+secrets*.json
+service-account*.json
+.secrets/
+*.keystore
+*.jks
 
 # Editor and temporary files
 .DS_Store
@@ -24,3 +30,6 @@ Thumbs.db
 .agents/
 tmp/
 temp/
+
+# Local screenshots, preview artifacts and deployment task records
+output/

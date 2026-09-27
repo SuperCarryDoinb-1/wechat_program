@@ -1,4 +1,5 @@
-.map-frame { position: relative; width: 100%; height: 440rpx; min-height: 200px; border-radius: 6px; border: 2px solid #202020; background: #F0E9FF; }
+@import "../../utils/type-theme.wxss";
+.map-frame { position: relative; width: 100%; height: 440rpx; min-height: 200px; border-radius: 6px; border: 2px solid #202020; background: var(--type-card, #FFF4DA); }
 .plot { position: absolute; left: 42px; right: 42px; top: 32px; bottom: 32px; border: 1px solid #202020; background-image: linear-gradient(#DCE3EE 1px, transparent 1px), linear-gradient(90deg, #DCE3EE 1px, transparent 1px); background-size: 25% 25%; }
 .grid-line { position: absolute; background: #202020; }
 .grid-horizontal { height: 1px; width: 100%; top: 50%; }
@@ -9,7 +10,7 @@
 .axis-left { left: 6px; top: 50%; transform: translateY(-50%); }
 .axis-right { right: 6px; top: 50%; transform: translateY(-50%); }
 .point { position: absolute; width: 12px; height: 12px; border: 2px solid #385476; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 5px #20202014; box-sizing: border-box; }
-.legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding: 6px 10px; border-radius: 8px; background: #F2F5FA; font-size: 12px; color: #363636; }
+.legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding: 6px 10px; border-radius: 8px; background: var(--type-bg, #FFF4DA); font-size: 12px; color: #363636; }
 .legend-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #627CA2; }
 .connection-dot { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #8599B8; transform: translate(-50%, -50%); }
 .friend-point { position: absolute; width: 23px; height: 23px; border: 3px solid; border-radius: 50%; transform: translate(-50%, -50%); box-sizing: border-box; }

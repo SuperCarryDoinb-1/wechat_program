@@ -1,17 +1,26 @@
 <view class="page home-page">
-  <view class="brand-row"><text class="brand" aria-label="{{copy.brand}}"><text class="brand-chatgpt">{{copy.brand[0]}}</text><text class="brand-claude">{{copy.brand[1]}}</text><text class="brand-deepseek">{{copy.brand[2]}}</text><text class="brand-kimi">{{copy.brand[3]}}</text></text><text class="pill">{{copy.home.badge}}</text></view>
-  <view class="hero-heading"><view class="title" aria-label="{{copy.home.title}}"><text class="title-prefix">{{copy.home.titlePrefix}}</text><text class="title-emphasis">{{copy.home.titleEmphasis}}</text></view></view>
+  <view class="brand-row">
+    <image class="brand-avatar" src="/assets/brand/doubao.png" mode="aspectFit" aria-label="豆包头像" />
+    <text class="brand" aria-label="{{copy.brand}}"><text class="brand-chatgpt">{{copy.brand[0]}}</text><text class="brand-claude">{{copy.brand[1]}}</text><text class="brand-deepseek">{{copy.brand[2]}}</text><text class="brand-kimi">{{copy.brand[3]}}</text></text>
+    <image class="brand-avatar" src="/assets/brand/douzai.png" mode="aspectFit" aria-label="豆仔头像" />
+  </view>
+  <view class="hero-heading">
+    <view class="title" aria-label="{{copy.home.title}}"><text class="title-prefix">{{copy.home.titlePrefix}}</text><text class="title-emphasis">{{copy.home.titleEmphasis}}</text></view>
+    <view class="subtitle">{{copy.home.subtitle}}</view>
+  </view>
   <view wx:if="{{friendMessage}}" class="friend-banner" aria-live="polite"><text class="friend-symbol">↗</text><text>{{friendMessage}}</text></view>
-  <view class="identity">
-    <image wx:if="{{assets.hero}}" class="hero-image" src="{{assets.hero}}" mode="aspectFit" />
-    <view wx:else class="specimen" aria-hidden="true"></view>
+  <view class="identity-samples">
+    <view class="samples-heading"><text class="samples-title">你可能是哪一种（含隐藏款）</text></view>
+    <view class="sample-card sample-{{item.code}}" wx:for="{{typePreviews}}" wx:key="code">
+      <image wx:if="{{item.image}}" class="sample-portrait" src="{{item.image}}" mode="aspectFit" aria-label="{{item.name}}形象" />
+      <view class="sample-content"><view class="sample-heading"><text class="sample-code">{{item.code}}</text><text class="sample-name">{{item.name}}</text></view><view class="sample-description">{{item.description}}</view></view>
+    </view>
   </view>
-  <view class="assistant-showcase">
-    <image class="assistant-strip" src="{{assets.assistantStrip}}" mode="aspectFit" aria-hidden="true" />
-    <view class="assistant-names"><text wx:for="{{copy.home.assistants}}" wx:key="*this" class="assistant-name">{{item}}</text></view>
-  </view>
-  <view class="start-area"><view wx:if="{{singlePage}}" class="panel friend-banner">{{sharingCopy.timelineHint}}</view><button wx:else class="primary start-button pressable" hover-class="button-pressed" bindtap="openQuiz"><text>{{copy.home.action}}</text></button></view>
   <view wx:if="{{showDiagnostics && !singlePage}}" class="diagnostics panel"><view class="diagnostics-title">{{copy.diagnostics.title}}</view><view class="muted">{{modeLabel}}</view><button class="secondary" bindtap="checkCloud" loading="{{checking}}" disabled="{{checking}}">{{checking ? copy.diagnostics.loading : copy.diagnostics.action}}</button><view class="muted" aria-live="polite">{{checkMessage}}</view></view>
-  <view class="footer"><view wx:if="{{showDiagnostics}}">{{copy.home.stage}}</view><button wx:if="{{!singlePage}}" class="privacy-link" bindtap="readPrivacy">{{copy.home.privacyLink}}</button></view>
+  <view class="start-area">
+    <view wx:if="{{singlePage}}" class="panel friend-banner">{{sharingCopy.timelineHint}}</view>
+    <button wx:else class="primary start-button pressable" hover-class="button-pressed" bindtap="openQuiz"><text>{{copy.home.action}}</text></button>
+    <button wx:if="{{!singlePage}}" class="history-button pressable" hover-class="button-pressed" bindtap="openHistory">{{copy.home.history}}</button>
+  </view>
 </view>
 <pet-companion wx:if="{{!singlePage}}" scene="home" avoid-rects="{{petAvoidRects}}" layout-ready="{{petLayoutReady}}" suspended="{{petScrolling}}" />

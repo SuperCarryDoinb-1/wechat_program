@@ -1,0 +1,5 @@
+Tool: built-in image_gen (edit)
+Source: douzai.png
+Output: assets/brand/douzai-transparent.png
+
+Use case: background-extraction. Edit target: the supplied douzai.png avatar. Remove ONLY the complete background: the white outer square, pale rounded square and blue circle. Output a true transparent PNG cutout of the exact same boy, retaining the original face, hairstyle, skin colors, black hoodie, white shirt, pose, 3D illustration style and curved lower shoulder crop. Preserve fine hair edges without white/blue halo. No new objects, text, border or shadow. Keep square composition with the boy filling the same area. This cutout will appear on a solid cream #FFF4DA webpage so all space outside the boy must have actual alpha transparency, not a checkerboard painted into the image.

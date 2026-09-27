@@ -1,0 +1,16 @@
+.sample-card { display: flex; align-items: center; gap: 24rpx; margin-top: 18rpx; padding: 22rpx 24rpx; border: 2px solid #202020; border-radius: 8px; box-shadow: 3px 3px 0 #202020; }
+.sample-card { justify-content: center; gap: 24rpx; padding: 18rpx; margin-top: 16rpx; border-radius: 16rpx; box-shadow: 3px 3px 0 #202020; }
+.sample-portrait { display: block; width: 140rpx; height: 140rpx; flex-shrink: 0; border-radius: 20rpx; }
+.sample-TEM { background: #FFE5B8; border-color: #8B5B2E; box-shadow: 3px 3px 0 #8B5B2E; }
+.sample-PEM { background: #DCEEE5; }
+.sample-TGM { background: #DFE8FA; }
+.sample-TEA { background: #E0EDF9; }
+.sample-PEA { background: #F9E1DF; }
+.sample-TGA { background: #E9E3FA; }
+.sample-PGM { background: #E5E4E4; }
+.sample-PGA { background: #EEE0F6; }
+.sample-heading { display: flex; align-items: baseline; justify-content: center; gap: 14rpx; white-space: nowrap; }
+.sample-code { flex-shrink: 0; font-size: 24rpx; font-weight: 900; letter-spacing: 1rpx; padding: 4rpx 9rpx; border: 1px solid #20202040; border-radius: 8rpx; background: #FFFFFF80; line-height: 1.3; }
+.sample-content { min-width: 0; flex: 0 1 360rpx; min-height: 140rpx; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.sample-name { font-size: 29rpx; font-weight: 800; line-height: 1.5; }
+.sample-description { margin-top: 12rpx; font-size: 23rpx; line-height: 1.7; color: #505050; }

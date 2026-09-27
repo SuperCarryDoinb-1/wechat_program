@@ -1,0 +1,8 @@
+.theme-TEM { --type-bg: #FFF7ED; --type-card: #FFE9CE; --type-soft: #F6DFC3; }
+.theme-PEM { --type-bg: #F0FAF6; --type-card: #DCEFE6; --type-soft: #CEE8DD; }
+.theme-TGA { --type-bg: #F4F4FF; --type-card: #E5E5F8; --type-soft: #DCDDF3; }
+.theme-PGM { --type-bg: #F5F3F3; --type-card: #E6E1E1; --type-soft: #DCD6D6; }
+.theme-TEA { --type-bg: #EFF8FF; --type-card: #DBEDFD; --type-soft: #CEE4F8; }
+.theme-PGA { --type-bg: #FAF3FF; --type-card: #EDDEF7; --type-soft: #E4D3F1; }
+.theme-TGM { --type-bg: #F1F5FC; --type-card: #DEE7F5; --type-soft: #D1DEF0; }
+.theme-PEA { --type-bg: #FFF5F5; --type-card: #FBE2E3; --type-soft: #F4D5D8; }

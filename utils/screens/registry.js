@@ -1,7 +1,8 @@
 const screens = {
   index: require('./index'),
   quiz: require('./quiz'),
-  result: require('./result')
+  result: require('./result'),
+  history: require('./history')
 };
 
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
   resolveEntry(initial, options) {
     // 分享入口先展示邀请首页，不能读取接收者本机的旧结果。
     const invited = Object.prototype.hasOwnProperty.call(options, 'rid') || options.invite;
-    return invited ? 'index' : initial;
+    return invited ? 'index' : (initial === 'index' && options.history === '1' ? 'history' : initial);
   },
   prepareTransition(stage, options, previous) {
     if (stage === 'index' && previous) {

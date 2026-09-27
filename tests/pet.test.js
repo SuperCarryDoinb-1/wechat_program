@@ -57,6 +57,67 @@ function harness(scene = 'home', width = 375, height = 667) {
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const overlaps = (p, size, r) => p.x < r.right && p.x + size > r.left && p.y < r.bottom && p.y + size > r.top;
 
+test('pet: single tap changes color only; rainbow expires and respects its cooldown', () => {
+  const h = harness(), random = Math.random;
+  Math.random = () => 0;
+  try {
+    h.pet.tapPet(); assert.equal(h.pet.data.hue, 0);
+    h.fire('tap'); assert.equal(h.pet.data.hue, 45);
+    assert.equal(h.pet.data.mood, 'idle'); assert.equal(h.pet.data.rainbow, true);
+    h.fire('rainbow'); assert.equal(h.pet.data.rainbow, false);
+    h.pet.tapPet(); h.fire('tap'); assert.equal(h.pet.data.rainbow, false);
+    h.elapse(20000); h.pet.tapPet(); h.fire('tap'); assert.equal(h.pet.data.rainbow, true);
+    h.lifecycle('hide'); assert.equal(h.timers.size, 0); assert.equal(h.pet.data.rainbow, false);
+  } finally { Math.random = random; }
+});
+
+test('pet: home double tap traces a bounded heart and returns in three seconds', () => {
+  for (const width of [320, 375, 430]) {
+    const h = harness('home', width), origin = h.pet.position();
+    h.pet.tapPet(); h.pet.tapPet();
+    assert.equal(h.pet._timers.tap, undefined); assert.equal(h.pet.data.hue, 0);
+    assert.equal(h.pet._timers.motion, undefined);
+    for (let i = 0; i < 75; i++) {
+      h.fire('performance');
+      assert.ok(h.pet.data.x >= 0 && h.pet.data.x + config.size <= width);
+      assert.ok(h.pet.data.y >= 0 && h.pet.data.y + config.size <= 667);
+    }
+    assert.ok(distance(h.pet.position(), origin) < 1e-8);
+    assert.equal(h.pet.data.performing, ''); assert.ok(h.pet.data.trail.length > 60);
+    assert.ok(h.pet.data.trail.at(-1).hue >= 360);
+    assert.ok(h.timers.has(h.pet._timers.motion));
+    h.fire('trail'); assert.equal(h.pet.data.trail.length, 0);
+    h.lifecycle('detached');
+  }
+});
+
+test('pet: result double tap blinks a short distance and shows a temporary speech bubble', () => {
+  const h = harness('result'), origin = h.pet.position();
+  h.pet.tapPet(); h.pet.tapPet(); assert.equal(h.pet.data.performing, 'blink');
+  h.fire('performance');
+  assert.ok(distance(origin, h.pet.position()) >= 20);
+  assert.ok(distance(origin, h.pet.position()) <= 80.00001);
+  assert.equal(h.pet.data.bubble, '快来抓我'); assert.equal(h.pet.data.hue, 0);
+  h.fire('performance'); assert.ok(h.timers.has(h.pet._timers.motion));
+  h.fire('bubble'); assert.equal(h.pet.data.bubble, '');
+  h.lifecycle('detached');
+});
+
+test('pet: drag, suspension, resize and hide interrupt performances without stale effects', () => {
+  for (const action of ['drag', 'suspend', 'resize', 'hide']) {
+    const h = harness(); h.pet.tapPet(); h.pet.tapPet(); h.fire('performance');
+    const stale = h.timers.get(h.pet._timers.performance).callback;
+    if (action === 'drag') { h.start(); h.arrive(50, 200); h.pet.touchEnd(); }
+    if (action === 'suspend') h.props({ suspended: true });
+    if (action === 'resize') h.resize(320, 568);
+    if (action === 'hide') h.lifecycle('hide');
+    const position = h.pet.position(); stale();
+    assert.deepEqual(h.pet.position(), position);
+    assert.equal(h.pet.data.performing, ''); assert.equal(h.pet.data.trail.length, 0);
+    h.lifecycle('detached');
+  }
+});
+
 test('pet: handoff waits for image load and real bounds; stale confirmations cannot hide the page pet', () => {
   const h = harness('quiz'), reads = [];
   h.pet.createSelectorQuery = () => {
@@ -134,7 +195,7 @@ test('pet: crossing a destination continues on the very next tick', () => {
 
 test('pet: home and result remeasurement preserves position, target, reaction and the motion timer', () => {
   for (const scene of ['home', 'result']) {
-    const h = harness(scene); h.fire('motion'); h.pet.tapPet();
+    const h = harness(scene); h.fire('motion'); h.pet.reactToAnswer();
     const start = h.pet.position(), target = { ...h.pet._target };
     const motionTimer = h.pet._timers.motion, reactionTimer = h.pet._timers.reaction;
     for (let i = 0; i < 20; i++) {
@@ -153,7 +214,7 @@ test('pet: home and result remeasurement preserves position, target, reaction an
 });
 
 test('pet: a real tap or slight finger movement never interrupts walking or the current reaction', () => {
-  const h = harness(); h.pet.tapPet();
+  const h = harness(); h.pet.reactToAnswer();
   const movement = h.pet._timers.motion, reaction = h.pet._timers.reaction;
   h.start();
   h.pet.touchMove({ touches: [{ clientX: 2, clientY: 2, identifier: 1 }] });
@@ -194,8 +255,8 @@ test('pet: delayed logic frames cannot cause a large catch-up jump', () => {
 test('pet: interaction animation never pauses the motion clock', () => {
   const h = harness(); h.measure();
   const timer = h.pet._timers.motion;
-  h.pet.tapPet(); const beat = h.pet.data.beat;
-  h.pet.tapPet(); assert.equal(h.pet.data.beat, beat);
+  h.pet.reactToAnswer(); const beat = h.pet.data.beat;
+  h.pet.reactToAnswer(); assert.equal(h.pet.data.beat, beat);
   assert.equal(h.pet._timers.motion, timer);
   h.pet.reactToAnswer();
   assert.equal(h.timers.size, 2);

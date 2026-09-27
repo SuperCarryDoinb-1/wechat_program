@@ -6,7 +6,8 @@
         <view class="pet-facing" style="transform: scaleX({{petFacing || 1}});">
           <view class="pet-breathe">
           <view class="pet-body mood-{{petMood || 'idle'}} beat-{{petBeat}}" role="button" aria-label="点击与小宠物互动，可以拖动">
-            <image class="quiz-pet-image pet-image" src="{{petImage || '/assets/pet/03-glossy-jelly-pink.png'}}" style="width: {{petSize || 104}}px; height: {{petSize || 104}}px;" mode="aspectFit" />
+            <image class="quiz-pet-image pet-image" src="{{petImage || '/assets/pet/03-glossy-jelly-pink.png'}}" style="width: {{petSize || 104}}px; height: {{petSize || 104}}px; filter: hue-rotate({{petHue || 0}}deg);" mode="aspectFit" />
+            <view wx:if="{{petRainbow}}" class="pet-rainbow" />
           </view>
           </view>
         </view>

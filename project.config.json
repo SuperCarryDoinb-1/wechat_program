@@ -3,7 +3,7 @@
   "miniprogramRoot": "./",
   "cloudfunctionRoot": "cloudfunctions/",
   "compileType": "miniprogram",
-  "appid": "wxbb0fad609d9b65b8",
+  "appid": "touristappid",
   "projectname": "AITI",
   "setting": {
     "es6": true,
@@ -28,20 +28,95 @@
     }
   },
   "watchOptions": {
-    "ignore": ["tmp/**", "output/**", "tests/**", "docs/**", ".git/**", ".agents/**", ".codex/**", "utils/scoring.test.js"]
+    "ignore": [
+      "tmp/**",
+      "output/**",
+      "tests/**",
+      "docs/**",
+      ".git/**",
+      ".agents/**",
+      ".codex/**",
+      "utils/scoring.test.js"
+    ]
   },
   "packOptions": {
     "ignore": [
-      { "value": "AI.png", "type": "file" },
-      { "value": "human.png", "type": "file" },
-      { "value": "assets/quiz/ai-runner.png", "type": "file" },
-      { "value": "assets/quiz/human-runner.png", "type": "file" },
-      { "value": "assets/pet/03-glossy-jelly-v4.png", "type": "file" },
-      { "value": "tmp", "type": "folder" },
-      { "value": "output", "type": "folder" },
-      { "value": "aiti_prd.md", "type": "file" },
-      { "value": "aiti_prd_brief.md", "type": "file" },
-      { "value": "not_complate_list.txt", "type": "file" },
+      {
+        "value": "all.png",
+        "type": "file"
+      },
+      {
+        "value": "douzai.png",
+        "type": "file"
+      },
+      {
+        "value": "doubao.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/brand/douzai-transparent.png",
+        "type": "file"
+      },
+      {
+        "value": "wechat-avatar-x-144.png",
+        "type": "file"
+      },
+      {
+        "value": "wechat-avatar-x-prompt.txt",
+        "type": "file"
+      },
+      {
+        "value": "微信云开发部署教程.html",
+        "type": "file"
+      },
+      {
+        "value": "AITI_project_review_2026-09-17.html",
+        "type": "file"
+      },
+      {
+        "value": "AI.png",
+        "type": "file"
+      },
+      {
+        "value": "human.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/quiz/ai-runner.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/quiz/human-runner.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/pet/03-glossy-jelly-v4.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/assistants/cartoon-strip.png",
+        "type": "file"
+      },
+      {
+        "value": "tmp",
+        "type": "folder"
+      },
+      {
+        "value": "output",
+        "type": "folder"
+      },
+      {
+        "value": "aiti_prd.md",
+        "type": "file"
+      },
+      {
+        "value": "aiti_prd_brief.md",
+        "type": "file"
+      },
+      {
+        "value": "not_complate_list.txt",
+        "type": "file"
+      },
       {
         "value": "utils/scoring.test.js",
         "type": "file"
