@@ -13,7 +13,7 @@ module.exports = function createPetBehavior(clock) {
       Object.keys(this._timers || {}).forEach(name => this.clearTimer(name));
       this._pendingDrag = this._queuedMood = this._touchOrigin = null;
       this._performing = false;
-      if (this._alive) this.setData({ performing: '', trail: [], bubble: '', rainbow: false });
+      if (this._alive) this.setData({ performing: '', trail: [], bubble: '' });
     },
     later(name, delay, callback) {
       this.clearTimer(name);
@@ -79,7 +79,6 @@ module.exports = function createPetBehavior(clock) {
       this.setData({ hue, rainbow, mood: 'idle' });
       if (rainbow) {
         this._rainbowAfter = clock.now() + 20000;
-        this.later('rainbow', 4000, () => this.setData({ rainbow: false }));
       }
     },
     stopPerformance() {
@@ -99,29 +98,40 @@ module.exports = function createPetBehavior(clock) {
         y: Math.max(12 * scale, Math.min(maxY - 18 * scale, origin.y)) };
       const heart = t => ({ x: center.x + scale * 16 * Math.pow(Math.sin(t), 3),
         y: center.y - scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) });
-      const first = heart(0), started = clock.now(), trail = [];
+      const first = heart(0), started = clock.now();
+      const interval = 20, segments = 130;
+      let segment = 0;
       let previous = first;
       this.setData({ performing: 'heart', mood: 'idle', trail: [], motionReady: true });
       const frame = () => {
         const elapsed = Math.min(3000, clock.now() - started);
         let next;
+        const update = {};
+        // Fixed samples keep the curve closed even when a logic frame is delayed.
+        // Append only new segments instead of resending the growing trail array.
+        const count = Math.floor(Math.max(0, Math.min(2600, elapsed - 200)) / 2600 * segments);
+        while (segment < count) {
+          const point = heart((segment + 1) / segments * Math.PI * 2);
+          const dx = point.x - previous.x, dy = point.y - previous.y;
+          update['trail[' + segment + ']'] = { id: segment,
+            x: previous.x + size / 2, y: previous.y + size / 2,
+            length: Math.hypot(dx, dy) + 2, angle: Math.atan2(dy, dx) * 180 / Math.PI,
+            hue: (segment + 1) / segments * 360 };
+          previous = point;
+          segment++;
+        }
         if (elapsed < 200) {
           const p = elapsed / 200;
           next = { x: origin.x + (first.x - origin.x) * p, y: origin.y + (first.y - origin.y) * p };
         } else if (elapsed <= 2800) {
           next = heart((elapsed - 200) / 2600 * Math.PI * 2);
-          const dx = next.x - previous.x, dy = next.y - previous.y;
-          trail.push({ id: trail.length, x: previous.x + size / 2, y: previous.y + size / 2,
-            length: Math.hypot(dx, dy) + 2, angle: Math.atan2(dy, dx) * 180 / Math.PI,
-            hue: (elapsed - 200) / 2600 * 360 });
-          previous = next;
         } else {
           const p = (elapsed - 2800) / 200;
           next = { x: first.x + (origin.x - first.x) * p, y: first.y + (origin.y - first.y) * p };
         }
         this._actualX = next.x; this._actualY = next.y;
-        this.setData({ ...next, trail: trail.slice() });
-        if (elapsed < 3000) this.later('performance', 40, frame);
+        this.setData({ ...next, ...update });
+        if (elapsed < 3000) this.later('performance', interval, frame);
         else {
           this._performing = false;
           this.setData({ performing: '', trailFading: true });
@@ -130,7 +140,7 @@ module.exports = function createPetBehavior(clock) {
         }
       };
       this.setData({ trailFading: false });
-      this.later('performance', 40, frame);
+      this.later('performance', interval, frame);
     },
     blinkAway() {
       if (!this._bounds) return;

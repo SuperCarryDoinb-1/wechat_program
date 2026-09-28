@@ -5,7 +5,7 @@
 .is-suspended { pointer-events: none; }
 .pet-facing { position: relative; transition: transform 180ms ease-in-out; }
 .pet-breathe { animation: pet-breathe 2.8s ease-in-out infinite; }
-.pet-body { position: relative; transform-origin: 50% 80%; }
+.pet-body { position: relative; transform-origin: 50% 80%; opacity: .6; }
 .pet-image { display: block; }
 .pet-rainbow { position: absolute; inset: 0; pointer-events: none; opacity: .6; background: linear-gradient(135deg, #ff557d, #ffc94d, #85f593, #59dcff, #9275ff, #ff70cf, #ff557d); background-size: 200% 200%; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; animation: pet-rainbow-flow 1.6s linear infinite; }
 @keyframes pet-rainbow-flow { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }

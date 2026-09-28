@@ -24,7 +24,11 @@ function harness(scene = 'home', width = 375, height = 667) {
     data: structuredClone(definition.data),
     setData(update, done) {
       assert.notEqual(this._alive, false);
-      Object.assign(this.data, update);
+      for (const [key, value] of Object.entries(update)) {
+        const segment = /^trail\[(\d+)\]$/.exec(key);
+        if (segment) this.data.trail[Number(segment[1])] = value;
+        else this.data[key] = value;
+      }
       for (const key of Object.keys(update)) {
         if (key in this.properties) this.properties[key] = update[key];
       }
@@ -57,17 +61,20 @@ function harness(scene = 'home', width = 375, height = 667) {
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const overlaps = (p, size, r) => p.x < r.right && p.x + size > r.left && p.y < r.bottom && p.y + size > r.top;
 
-test('pet: single tap changes color only; rainbow expires and respects its cooldown', () => {
+test('pet: rainbow persists until another tap, including hide and show', () => {
   const h = harness(), random = Math.random;
   Math.random = () => 0;
   try {
     h.pet.tapPet(); assert.equal(h.pet.data.hue, 0);
     h.fire('tap'); assert.equal(h.pet.data.hue, 45);
     assert.equal(h.pet.data.mood, 'idle'); assert.equal(h.pet.data.rainbow, true);
-    h.fire('rainbow'); assert.equal(h.pet.data.rainbow, false);
+    assert.equal(h.pet._timers.rainbow, undefined);
+    h.elapse(5000); assert.equal(h.pet.data.rainbow, true);
     h.pet.tapPet(); h.fire('tap'); assert.equal(h.pet.data.rainbow, false);
     h.elapse(20000); h.pet.tapPet(); h.fire('tap'); assert.equal(h.pet.data.rainbow, true);
-    h.lifecycle('hide'); assert.equal(h.timers.size, 0); assert.equal(h.pet.data.rainbow, false);
+    h.lifecycle('hide'); assert.equal(h.timers.size, 0); assert.equal(h.pet.data.rainbow, true);
+    h.lifecycle('show'); assert.equal(h.pet.data.rainbow, true);
+    h.lifecycle('detached');
   } finally { Math.random = random; }
 });
 
@@ -77,7 +84,7 @@ test('pet: home double tap traces a bounded heart and returns in three seconds',
     h.pet.tapPet(); h.pet.tapPet();
     assert.equal(h.pet._timers.tap, undefined); assert.equal(h.pet.data.hue, 0);
     assert.equal(h.pet._timers.motion, undefined);
-    for (let i = 0; i < 75; i++) {
+    for (let i = 0; i < 150; i++) {
       h.fire('performance');
       assert.ok(h.pet.data.x >= 0 && h.pet.data.x + config.size <= width);
       assert.ok(h.pet.data.y >= 0 && h.pet.data.y + config.size <= 667);
@@ -89,6 +96,26 @@ test('pet: home double tap traces a bounded heart and returns in three seconds',
     h.fire('trail'); assert.equal(h.pet.data.trail.length, 0);
     h.lifecycle('detached');
   }
+});
+
+test('pet: delayed heart frames append a continuous closed trail without resending it', () => {
+  const h = harness(), origin = h.pet.position(), writes = [];
+  const setData = h.pet.setData;
+  h.pet.setData = function(update, done) { writes.push(structuredClone(update)); setData.call(this, update, done); };
+  h.pet.drawHeart();
+  h.elapse(900); h.fire('performance');
+  h.elapse(2200); h.fire('performance');
+  const trail = h.pet.data.trail;
+  assert.equal(trail.length, 130);
+  for (let i = 0; i < trail.length; i++) {
+    const a = trail[i], b = trail[(i + 1) % trail.length];
+    const angle = a.angle * Math.PI / 180;
+    assert.ok(distance({ x: a.x + (a.length - 2) * Math.cos(angle),
+      y: a.y + (a.length - 2) * Math.sin(angle) }, b) < 1e-8);
+  }
+  assert.ok(distance(h.pet.position(), origin) < 1e-8);
+  assert.equal(writes.some(update => update.trail && update.trail.length), false);
+  h.lifecycle('detached');
 });
 
 test('pet: result double tap blinks a short distance and shows a temporary speech bubble', () => {

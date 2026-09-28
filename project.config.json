@@ -41,34 +41,13 @@
   },
   "packOptions": {
     "ignore": [
-      {
-        "value": "all.png",
-        "type": "file"
-      },
-      {
-        "value": "douzai.png",
-        "type": "file"
-      },
-      {
-        "value": "doubao.png",
-        "type": "file"
-      },
-      {
-        "value": "assets/brand/douzai-transparent.png",
-        "type": "file"
-      },
-      {
-        "value": "wechat-avatar-x-144.png",
-        "type": "file"
-      },
-      {
-        "value": "wechat-avatar-x-prompt.txt",
-        "type": "file"
-      },
-      {
-        "value": "微信云开发部署教程.html",
-        "type": "file"
-      },
+      { "value": "all.png", "type": "file" },
+      { "value": "douzai.png", "type": "file" },
+      { "value": "doubao.png", "type": "file" },
+      { "value": "assets/brand/douzai-transparent.png", "type": "file" },
+      { "value": "wechat-avatar-x-144.png", "type": "file" },
+      { "value": "wechat-avatar-x-prompt.txt", "type": "file" },
+      { "value": "微信云开发部署教程.html", "type": "file" },
       {
         "value": "AITI_project_review_2026-09-17.html",
         "type": "file"

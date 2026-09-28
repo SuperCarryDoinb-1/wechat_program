@@ -1,10 +1,10 @@
 @import "../../utils/type-preview.wxss";
-.history-back { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; width: 40px; min-width: 0; height: 24px; margin: 0; padding: 0; line-height: 1; background: #D6EBCB; color: #202020; font-size: 9px; font-weight: 600; border: 1px solid #202020; border-radius: 4px; box-shadow: 2px 2px 0 #202020; }
+.history-back { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; width: 64px; min-width: 0; height: 38.4px; margin: 0; padding: 0; line-height: 1; background: #D6EBCB; color: #202020; font-size: 14.4px; font-weight: 600; border: 1.6px solid #202020; border-radius: 6.4px; box-shadow: 3.2px 3.2px 0 #202020; }
 .history-back text { width: auto; white-space: nowrap; line-height: 1; }
-.history-page .history-back { width: 88px; max-width: 88px; min-width: 0; padding-left: 0; padding-right: 0; }
+.history-page .history-back { width: 140.8px; max-width: 140.8px; min-width: 0; padding-left: 0; padding-right: 0; }
 .history-back-arrow { display: none; }
 .history-page { position: relative; padding: 0 28rpx; padding-bottom: calc(16rpx + env(safe-area-inset-bottom)); }
-.history-page > .brand-row { height: 32px; }
+.history-page > .brand-row { height: 51.2px; }
 .history-title { margin: 12rpx 0 16rpx; text-align: center; font-size: 51rpx; line-height: 1.5; font-weight: 800; }
 .history-title-note { font-size: 24rpx; font-weight: 500; color: #625B51; }
 .history-state { margin-top: 44rpx; text-align: center; padding: 56rpx 32rpx; line-height: 1.8; }

@@ -5,8 +5,8 @@
 .pet-walker.is-passive { pointer-events: none; }
 .pet-trail { position: fixed; inset: 0; z-index: 2147482999; pointer-events: none; }
 .pet-trail.is-fading { opacity: 0; transition: opacity 700ms ease-out; }
-.pet-trail-segment { position: absolute; height: 5px; border-radius: 5px; transform-origin: 0 50%; box-shadow: 0 0 8px 3px currentColor, 0 0 17px currentColor; }
-.pet-walker.action-heart { transition: transform 40ms linear; }
+.pet-trail-segment { position: absolute; height: 5px; margin-top: -2.5px; border-radius: 5px; transform-origin: 0 50%; box-shadow: 0 0 8px currentColor; }
+.pet-walker.action-heart { transition: transform 20ms linear; }
 .action-heart .pet-breathe { animation: none; }
 .pet-walker.action-blink { transition: none; }
 .action-blink .pet-facing { animation: pet-blink 240ms ease-out; }
